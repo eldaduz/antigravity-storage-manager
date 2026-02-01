@@ -5,6 +5,12 @@ All notable changes to the **Antigravity Storage Manager** extension will be doc
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.2] - 2026-02-01
+### Profile Switching
+- **EBUSY Fix**: Resolved a common error during profile switching where locked files (like the .NET runtime) in the `globalStorage` directory would block the entire operation.
+- **Improved Detection**: The extension now specifically targets Antigravity and Codeium configuration subdirectories instead of scanning the entire global storage root, significantly reducing the chance of encountering locked files from other extensions.
+- **Robustness**: Added automatic skipping for busy or locked files (`EBUSY`/`EPERM`), allowing the profile switch to complete successfully even when some non-critical files are in use.
+
 ## [0.12.1] - 2026-02-01
 ### Port Detection (Windows 11)
 - **Stability Fix**: Resolved a critical issue in `PortDetector` on Windows 11 where the "Failed to get/decrypt manifest" error frequently occurred due to `findstr` pipe failures. Switched to direct `netstat -ano` output processing in TypeScript for 100% reliability.

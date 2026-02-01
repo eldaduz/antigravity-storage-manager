@@ -29,23 +29,13 @@ export class ProfileManager {
 
         const candidates: string[] = [];
 
-        // 1. Standalone App (Official Agent) - Highest Priority
-        const standalonePaths = [
-            path.join(roaming, 'Antigravity', 'User', 'globalStorage'),
-            path.join(roaming, 'Codeium', 'User', 'globalStorage')
-        ];
-
-        for (const p of standalonePaths) {
-            candidates.push(p);
-        }
-
-        // 2. VS Code Extensions
+        // 2. VS Code Extensions & Standalone apps
         // Try common locations for extensions global storage
         const commonRoots = [
             path.join(roaming, 'Code', 'User', 'globalStorage'),
             path.join(roaming, 'Code - Insiders', 'User', 'globalStorage'),
-            // Antigravity IDE specific?
-            path.join(roaming, 'Antigravity', 'User', 'globalStorage')
+            path.join(roaming, 'Antigravity', 'User', 'globalStorage'),
+            path.join(roaming, 'Codeium', 'User', 'globalStorage')
         ];
 
         for (const storageRoot of commonRoots) {
@@ -317,7 +307,15 @@ export class ProfileManager {
                 this.copyRecursiveSync(path.join(src, childItemName), path.join(dest, childItemName));
             });
         } else {
-            fs.copyFileSync(src, dest);
+            try {
+                fs.copyFileSync(src, dest);
+            } catch (e: any) {
+                if (e.code === 'EBUSY' || e.code === 'EPERM') {
+                    console.warn(`Skipping locked file: ${src}`);
+                } else {
+                    throw e;
+                }
+            }
         }
     }
 
