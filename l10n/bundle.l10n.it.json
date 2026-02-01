@@ -604,5 +604,9 @@
     "Permission denied. Please sign in again and grant file access.": "Permesso negato. Accedi di nuovo e concedi l'accesso ai file.",
     "SyncManager: Invalid grant detected. Signing out.": "SyncManager: Rilevata concessione non valida (invalid grant). Disconnessione.",
     "SyncManager: Permission denied detected. Signing out.": "SyncManager: Rilevata negazione dell'autorizzazione (Permission denied). Disconnessione.",
-    "GoogleAuthProvider: Invalid grant detected. Signing out.": "GoogleAuthProvider: Rilevata concessione non valida. Disconnessione."
+    "GoogleAuthProvider: Invalid grant detected. Signing out.": "GoogleAuthProvider: Rilevata concessione non valida. Disconnessione.",
+    "[GoogleDrive] Retry {0}/{1} for \"{2}\" due to error: {3}. Waiting {4}ms": "[GoogleDrive] Riprovo {0}/{1} per \"{2}\" a causa dell'errore: {3}. In attesa {4}ms",
+    "Check existence of {0}": "Verifica esistenza di {0}",
+    "Update file {0}": "Aggiornamento file {0}",
+    "Create file {0}": "Creazione file {0}"
 }

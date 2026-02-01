@@ -5,6 +5,12 @@ All notable changes to the **Antigravity Storage Manager** extension will be doc
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.5] - 2026-02-02
+### Network Stability
+- **SSL/Network Retry Logic**: Implemented robust retry mechanism for Google Drive API operations to automatically recover from `SSLV3_ALERT_BAD_RECORD_MAC`, `ECONNRESET`, and other transient network errors.
+  - **Zero-Touch Recovery**: The extension will now automatically attempt to retry failed uploads up to 3 times with exponential backoff (1s, 2s, 4s), preventing sync failures on unstable connections.
+- **Log Localization**: Network retry logs are now fully localized into all 16 supported languages.
+
 ## [0.12.4] - 2026-02-02
 ### Authentication & Error Handling
 - **Smart Error Recovery**: Implemented sophisticated handling for `invalid_grant` (expired session) and `Permission denied` (missing scope) errors.

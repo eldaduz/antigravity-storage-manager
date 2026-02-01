@@ -604,5 +604,9 @@
     "Permission denied. Please sign in again and grant file access.": "تم رفض الإذن. يرجى تسجيل الدخول مرة أخرى ومنح حق الوصول إلى الملفات.",
     "SyncManager: Invalid grant detected. Signing out.": "SyncManager: تم اكتشاف منح غير صالح (invalid grant). تسجيل الخروج.",
     "SyncManager: Permission denied detected. Signing out.": "SyncManager: تم اكتشاف رفض الإذن (Permission denied). تسجيل الخروج.",
-    "GoogleAuthProvider: Invalid grant detected. Signing out.": "GoogleAuthProvider: تم اكتشاف منح غير صالح. تسجيل الخروج."
+    "GoogleAuthProvider: Invalid grant detected. Signing out.": "GoogleAuthProvider: تم اكتشاف منح غير صالح. تسجيل الخروج.",
+    "[GoogleDrive] Retry {0}/{1} for \"{2}\" due to error: {3}. Waiting {4}ms": "[GoogleDrive] إعادة المحاولة {0}/{1} لـ \"{2}\" بسبب الخطأ: {3}. انتظار {4} مللي ثانية",
+    "Check existence of {0}": "التحقق من وجود {0}",
+    "Update file {0}": "تحديث الملف {0}",
+    "Create file {0}": "إنشاء الملف {0}"
 }

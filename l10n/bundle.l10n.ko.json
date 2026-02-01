@@ -604,5 +604,9 @@
     "Permission denied. Please sign in again and grant file access.": "권한이 거부되었습니다. 다시 로그인하여 파일 액세스 권한을 부여해 주세요.",
     "SyncManager: Invalid grant detected. Signing out.": "SyncManager: 유효하지 않은 권한 부여(invalid grant)가 감지되었습니다. 로그아웃 중.",
     "SyncManager: Permission denied detected. Signing out.": "SyncManager: 권한 거부(Permission denied)가 감지되었습니다. 로그아웃 중.",
-    "GoogleAuthProvider: Invalid grant detected. Signing out.": "GoogleAuthProvider: 유효하지 않은 권한 부여가 감지되었습니다. 로그아웃 중."
+    "GoogleAuthProvider: Invalid grant detected. Signing out.": "GoogleAuthProvider: 유효하지 않은 권한 부여가 감지되었습니다. 로그아웃 중.",
+    "[GoogleDrive] Retry {0}/{1} for \"{2}\" due to error: {3}. Waiting {4}ms": "[GoogleDrive] 오류로 인해 \"{2}\" 재시도 중 {0}/{1}: {3}. {4}ms 대기 중",
+    "Check existence of {0}": "{0} 존재 여부 확인",
+    "Update file {0}": "파일 {0} 업데이트",
+    "Create file {0}": "파일 {0} 생성"
 }

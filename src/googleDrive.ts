@@ -588,6 +588,44 @@ export class GoogleDriveService {
     /**
      * Upload or update a file in Google Drive
      */
+    /**
+     * Helper to retry operations on transient network/SSL errors
+     */
+    private async withRetry<T>(operation: () => Promise<T>, description: string, retries = 3): Promise<T> {
+        let lastError: any;
+        for (let attempt = 1; attempt <= retries; attempt++) {
+            try {
+                return await operation();
+            } catch (error: any) {
+                lastError = error;
+                // Check for retryable errors
+                const isRetryable =
+                    error.code === 'ECONNRESET' ||
+                    error.code === 'ETIMEDOUT' ||
+                    error.code === 'EPIPE' ||
+                    (error.message && (
+                        error.message.includes('SSLV3_ALERT_BAD_RECORD_MAC') ||
+                        error.message.includes('socket hang up') ||
+                        error.message.includes('network timeout')
+                    )) ||
+                    (typeof error.code === 'string' && error.code.includes('SSL')) ||
+                    (error.response && error.response.status >= 500 && error.response.status < 600);
+
+                if (!isRetryable || attempt === retries) {
+                    throw error;
+                }
+
+                // Exponential backoff: 1s, 2s, 4s... + jitter
+                const delay = Math.pow(2, attempt) * 1000 + (Math.random() * 500);
+                const lm = LocalizationManager.getInstance();
+                console.warn(lm.t('[GoogleDrive] Retry {0}/{1} for "{2}" due to error: {3}. Waiting {4}ms',
+                    attempt, retries, description, error.message, delay.toFixed(0)));
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+        throw lastError;
+    }
+
     private async uploadOrUpdateFile(
         name: string,
         data: Buffer,
@@ -595,13 +633,16 @@ export class GoogleDriveService {
         mimeType: string,
         appProperties?: { [key: string]: string }
     ): Promise<string> {
+        const lm = LocalizationManager.getInstance();
         // Check if file exists
         const query = `name = '${name}' and '${parentId}' in parents and trashed = false`;
-        const existing = await this.drive.files.list({
+
+        // Retry the list operation too, just in case
+        const existing = await this.withRetry(() => this.drive.files.list({
             q: query,
             fields: 'files(id)',
             spaces: 'drive'
-        });
+        }), lm.t('Check existence of {0}', name));
 
         if (existing.data.files && existing.data.files.length > 0) {
             // Update existing file
@@ -611,14 +652,15 @@ export class GoogleDriveService {
                 requestBody.appProperties = appProperties;
             }
 
-            await this.drive.files.update({
+            await this.withRetry(() => this.drive.files.update({
                 fileId: fileId,
                 requestBody: appProperties ? requestBody : undefined,
                 media: {
                     mimeType: mimeType,
                     body: bufferToStream(data)
                 }
-            });
+            }), lm.t('Update file {0}', name));
+
             return fileId;
         } else {
             // Create new file
@@ -630,14 +672,15 @@ export class GoogleDriveService {
                 requestBody.appProperties = appProperties;
             }
 
-            const response = await this.drive.files.create({
+            const response = await this.withRetry(() => this.drive.files.create({
                 requestBody: requestBody,
                 media: {
                     mimeType: mimeType,
                     body: bufferToStream(data)
                 },
                 fields: 'id'
-            });
+            }), lm.t('Create file {0}', name));
+
             return response.data.id!;
         }
     }

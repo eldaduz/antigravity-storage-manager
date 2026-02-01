@@ -604,5 +604,9 @@
     "Permission denied. Please sign in again and grant file access.": "Zugriff verweigert. Bitte melden Sie sich erneut an und gewähren Sie Dateizugriff.",
     "SyncManager: Invalid grant detected. Signing out.": "SyncManager: Ungültiger Zugriff erkannt (invalid grant). Melde ab.",
     "SyncManager: Permission denied detected. Signing out.": "SyncManager: Zugriff verweigert erkannt (Permission denied). Melde ab.",
-    "GoogleAuthProvider: Invalid grant detected. Signing out.": "GoogleAuthProvider: Ungültiger Zugriff erkannt. Melde ab."
+    "GoogleAuthProvider: Invalid grant detected. Signing out.": "GoogleAuthProvider: Ungültiger Zugriff erkannt. Melde ab.",
+    "[GoogleDrive] Retry {0}/{1} for \"{2}\" due to error: {3}. Waiting {4}ms": "[GoogleDrive] Wiederholung {0}/{1} für \"{2}\" aufgrund eines Fehlers: {3}. Warten {4}ms",
+    "Check existence of {0}": "Prüfung auf Existenz von {0}",
+    "Update file {0}": "Datei {0} aktualisieren",
+    "Create file {0}": "Datei {0} erstellen"
 }

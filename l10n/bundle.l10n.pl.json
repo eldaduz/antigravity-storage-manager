@@ -604,5 +604,9 @@
     "Permission denied. Please sign in again and grant file access.": "Odmowa dostępu. Zaloguj się ponownie i przyznaj dostęp do plików.",
     "SyncManager: Invalid grant detected. Signing out.": "SyncManager: Wykryto nieprawidłowe uprawnienie (invalid grant). Wylogowywanie.",
     "SyncManager: Permission denied detected. Signing out.": "SyncManager: Wykryto odmowę dostępu (Permission denied). Wylogowywanie.",
-    "GoogleAuthProvider: Invalid grant detected. Signing out.": "GoogleAuthProvider: Wykryto nieprawidłowe uprawnienie. Wylogowywanie."
+    "GoogleAuthProvider: Invalid grant detected. Signing out.": "GoogleAuthProvider: Wykryto nieprawidłowe uprawnienie. Wylogowywanie.",
+    "[GoogleDrive] Retry {0}/{1} for \"{2}\" due to error: {3}. Waiting {4}ms": "[GoogleDrive] Ponowna próba {0}/{1} dla \"{2}\" z powodu błędu: {3}. Oczekiwanie {4}ms",
+    "Check existence of {0}": "Sprawdzanie istnienia {0}",
+    "Update file {0}": "Aktualizacja pliku {0}",
+    "Create file {0}": "Tworzenie pliku {0}"
 }

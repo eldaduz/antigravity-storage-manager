@@ -604,5 +604,9 @@
     "Permission denied. Please sign in again and grant file access.": "Přístup odepřen. Přihlaste se prosím znovu a povolte přístup k souborům.",
     "SyncManager: Invalid grant detected. Signing out.": "SyncManager: Zjištěno neplatné oprávnění (invalid grant). Odhlašování.",
     "SyncManager: Permission denied detected. Signing out.": "SyncManager: Zjištěno odepření přístupu (Permission denied). Odhlašování.",
-    "GoogleAuthProvider: Invalid grant detected. Signing out.": "GoogleAuthProvider: Zjištěno neplatné oprávnění. Odhlašování."
+    "GoogleAuthProvider: Invalid grant detected. Signing out.": "GoogleAuthProvider: Zjištěno neplatné oprávnění. Odhlašování.",
+    "[GoogleDrive] Retry {0}/{1} for \"{2}\" due to error: {3}. Waiting {4}ms": "[GoogleDrive] Opakování {0}/{1} pro \"{2}\" z důvodu chyby: {3}. Čekání {4}ms",
+    "Check existence of {0}": "Kontrola existence {0}",
+    "Update file {0}": "Aktualizace souboru {0}",
+    "Create file {0}": "Vytvoření souboru {0}"
 }
