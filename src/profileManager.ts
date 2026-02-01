@@ -30,7 +30,6 @@ export class ProfileManager {
         const candidates: string[] = [];
 
         // 2. VS Code Extensions & Standalone apps
-        // Try common locations for extensions global storage
         const commonRoots = [
             path.join(roaming, 'Code', 'User', 'globalStorage'),
             path.join(roaming, 'Code - Insiders', 'User', 'globalStorage'),
@@ -38,6 +37,21 @@ export class ProfileManager {
             path.join(roaming, 'Codeium', 'User', 'globalStorage')
         ];
 
+        // 1. Check for Standalone App Roots (Direct usage)
+        // If we are in the Standalone IDE, the globalStorage itself might be the config root.
+        // We add them as candidates if they exist, but we must be careful to filter contents later.
+        const standaloneRoots = [
+            path.join(roaming, 'Antigravity', 'User', 'globalStorage'),
+            path.join(roaming, 'Codeium', 'User', 'globalStorage')
+        ];
+
+        for (const root of standaloneRoots) {
+            if (fs.existsSync(root)) {
+                candidates.push(root);
+            }
+        }
+
+        // 2. Scan for Subdirectories (Extension mode)
         for (const storageRoot of commonRoots) {
             if (fs.existsSync(storageRoot)) {
                 try {
@@ -52,15 +66,17 @@ export class ProfileManager {
                             continue;
                         }
 
+                        // Check full path to avoid re-adding the root itself if it was already added
+                        const fullPath = path.join(storageRoot, d);
+                        if (candidates.includes(fullPath)) continue;
+
                         // Look for Antigravity or Codeium target extensions
-                        // We want the ONE that holds the AUTH state (Google Auth, etc.)
-                        // Usually 'Codeium.antigravity' or 'Antigravity.agent'
                         if (lowerName.includes('antigravity') || lowerName.includes('codeium')) {
-                            candidates.push(path.join(storageRoot, d));
+                            candidates.push(fullPath);
                         }
                     }
                 } catch (e) {
-                    console.error(`Error reading storage root ${storageRoot}:`, e);
+                    // console.error(`Error reading storage root ${storageRoot}:`, e);
                 }
             }
         }
@@ -85,6 +101,8 @@ export class ProfileManager {
 
                 return true;
             })
+            // Quick heuristic: Prefer paths that actually contain Antigravity data
+            // But for now, mtime is a decent proxy for "active"
             .map(p => ({ path: p, mtime: fs.statSync(p).mtimeMs }))
             .sort((a, b) => b.mtime - a.mtime); // Newest first
 
@@ -135,7 +153,7 @@ export class ProfileManager {
         if (!this.configDir) await this.initialize();
         if (!this.configDir) {
             vscode.window.showErrorMessage(LocalizationManager.getInstance().t('Could not locate Antigravity configuration directory to back up.'));
-            return;
+            throw new Error('Config directory not found');
         }
 
         // Create profiles directory in OUR extension's storage
@@ -293,7 +311,18 @@ export class ProfileManager {
             return;
         }
 
+        // Filter out unrelated/problematic folders
+        const shouldIgnore = (name: string) => {
+            const lower = name.toLowerCase();
+            return lower.startsWith('ms-dotnet') ||
+                lower.startsWith('vscode-dotnet') ||
+                lower === '.dotnet' ||
+                lower === 'node_modules' ||
+                lower.includes('antigravity-storage-manager');
+        };
+
         const stats = fs.statSync(src);
+
         const isDirectory = stats.isDirectory();
 
         if (isDirectory) {
@@ -303,6 +332,7 @@ export class ProfileManager {
             fs.readdirSync(src).forEach((childItemName) => {
                 // Skip 'profiles' folder if we are copying from our own storage root (generic safety)
                 if (childItemName === 'profiles') return;
+                if (shouldIgnore(childItemName)) return;
 
                 this.copyRecursiveSync(path.join(src, childItemName), path.join(dest, childItemName));
             });
@@ -446,8 +476,12 @@ export class ProfileManager {
                     }
                 });
                 if (name) {
-                    await this.saveProfile(name);
-                    vscode.window.showInformationMessage(lm.t('Profile "{0}" saved.', name));
+                    try {
+                        await this.saveProfile(name);
+                        vscode.window.showInformationMessage(lm.t('Profile "{0}" saved.', name));
+                    } catch (e) {
+                        // Error is already shown in saveProfile or thrown
+                    }
                 }
             } else if (selected.label.includes('Delete Profile')) {
                 const toDelete = await vscode.window.showQuickPick(profiles.map(p => p.name), {
