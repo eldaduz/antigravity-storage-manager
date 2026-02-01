@@ -599,5 +599,10 @@
     "Tok": "Tok",
     "Access Denied": "Accès refusé",
     "Your ID": "Votre ID",
-    "Please ask the owner to add your ID or Username to the configuration.": "Veuillez demander au propriétaire d'ajouter votre ID ou votre nom d'utilisateur à la configuration."
+    "Please ask the owner to add your ID or Username to the configuration.": "Veuillez demander au propriétaire d'ajouter votre ID ou votre nom d'utilisateur à la configuration.",
+    "Google Drive session expired. Please sign in again.": "La session Google Drive a expiré. Veuillez vous reconnecter.",
+    "Permission denied. Please sign in again and grant file access.": "Permission refusée. Veuillez vous reconnecter et autoriser l'accès aux fichiers.",
+    "SyncManager: Autorisation invalide détectée (invalid grant). Déconnexion.": "SyncManager : Autorisation invalide détectée (invalid grant). Déconnexion.",
+    "SyncManager: Permission refusée détectée (Permission denied). Déconnexion.": "SyncManager : Permission refusée détectée (Permission denied). Déconnexion.",
+    "GoogleAuthProvider: Autorisation invalide détectée. Déconnexion.": "GoogleAuthProvider : Autorisation invalide détectée. Déconnexion."
 }

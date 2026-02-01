@@ -599,5 +599,10 @@
     "Tok": "Ток",
     "Access Denied": "Доступ запрещён",
     "Your ID": "Ваш ID",
-    "Please ask the owner to add your ID or Username to the configuration.": "Попросите владельца добавить ваш ID или имя пользователя в настройки."
+    "Please ask the owner to add your ID or Username to the configuration.": "Попросите владельца добавить ваш ID или имя пользователя в настройки.",
+    "Google Drive session expired. Please sign in again.": "Сессия Google Drive истекла. Пожалуйста, войдите снова.",
+    "Permission denied. Please sign in again and grant file access.": "Отказано в доступе. Пожалуйста, войдите снова и предоставьте доступ к файлам.",
+    "SyncManager: Invalid grant detected. Signing out.": "SyncManager: Обнаружен недействительный доступ (invalid_grant). Выход из системы.",
+    "SyncManager: Permission denied detected. Signing out.": "SyncManager: Обнаружен отказ в доступе (Permission denied). Выход из системы.",
+    "GoogleAuthProvider: Invalid grant detected. Signing out.": "GoogleAuthProvider: Обнаружен недействительный доступ. Выход из системы."
 }

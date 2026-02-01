@@ -599,5 +599,10 @@
     "Tok": "Tok",
     "Access Denied": "Erişim Reddedildi",
     "Your ID": "Kullanıcı Kimliğiniz (ID)",
-    "Please ask the owner to add your ID or Username to the configuration.": "Lütfen sahibinden ID'nizi veya Kullanıcı Adınızı yapılandırmaya eklemesini isteyin."
+    "Please ask the owner to add your ID or Username to the configuration.": "Lütfen sahibinden ID'nizi veya Kullanıcı Adınızı yapılandırmaya eklemesini isteyin.",
+    "Google Drive session expired. Please sign in again.": "Google Drive oturumunun süresi doldu. Lütfen tekrar giriş yapın.",
+    "Permission denied. Please sign in again and grant file access.": "İzin reddedildi. Lütfen tekrar giriş yapın ve dosya erişimine izin verin.",
+    "SyncManager: Invalid grant detected. Signing out.": "SyncManager: Geçersiz yetki algılandı (invalid grant). Çıkış yapılıyor.",
+    "SyncManager: Permission denied detected. Signing out.": "SyncManager: İzin reddedildi algılandı (Permission denied). Çıkış yapılıyor.",
+    "GoogleAuthProvider: Invalid grant detected. Signing out.": "GoogleAuthProvider: Geçersiz yetki algılandı. Çıkış yapılıyor."
 }

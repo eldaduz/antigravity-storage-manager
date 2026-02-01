@@ -599,5 +599,10 @@
     "Tok": "Tok",
     "Access Denied": "Access Denied",
     "Your ID": "Your ID",
-    "Please ask the owner to add your ID or Username to the configuration.": "Please ask the owner to add your ID or Username to the configuration."
+    "Please ask the owner to add your ID or Username to the configuration.": "Please ask the owner to add your ID or Username to the configuration.",
+    "Google Drive session expired. Please sign in again.": "Google Drive session expired. Please sign in again.",
+    "Permission denied. Please sign in again and grant file access.": "Permission denied. Please sign in again and grant file access.",
+    "SyncManager: Invalid grant detected. Signing out.": "SyncManager: Invalid grant detected. Signing out.",
+    "SyncManager: Permission denied detected. Signing out.": "SyncManager: Permission denied detected. Signing out.",
+    "GoogleAuthProvider: Invalid grant detected. Signing out.": "GoogleAuthProvider: Invalid grant detected. Signing out."
 }

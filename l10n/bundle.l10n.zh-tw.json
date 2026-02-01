@@ -599,5 +599,10 @@
     "Tok": "代幣",
     "Access Denied": "存取被拒絕",
     "Your ID": "您的 ID",
-    "Please ask the owner to add your ID or Username to the configuration.": "請請求擁有者將您的 ID 或使用者名稱新增至設定中。"
+    "Please ask the owner to add your ID or Username to the configuration.": "請請求擁有者將您的 ID 或使用者名稱新增至設定中。",
+    "Google Drive session expired. Please sign in again.": "Google Drive 工作階段已過期。請重新登入。",
+    "Permission denied. Please sign in again and grant file access.": "權限被拒絕。請重新登入並授權存取檔案。",
+    "SyncManager: Invalid grant detected. Signing out.": "SyncManager: 偵測到無效授權 (invalid grant)。正在登出。",
+    "SyncManager: Permission denied detected. Signing out.": "SyncManager: 偵測到權限被拒絕 (Permission denied)。正在登出。",
+    "GoogleAuthProvider: Invalid grant detected. Signing out.": "GoogleAuthProvider: 偵測到無效授權。正在登出。"
 }

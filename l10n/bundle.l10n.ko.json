@@ -599,5 +599,10 @@
     "Tok": "토큰",
     "Access Denied": "접근 거부됨",
     "Your ID": "귀하의 ID",
-    "Please ask the owner to add your ID or Username to the configuration.": "소유자에게 귀하의 ID 또는 사용자 이름을 구성에 추가하도록 요청하십시오."
+    "Please ask the owner to add your ID or Username to the configuration.": "소유자에게 귀하의 ID 또는 사용자 이름을 구성에 추가하도록 요청하십시오.",
+    "Google Drive session expired. Please sign in again.": "Google Drive 세션이 만료되었습니다. 다시 로그인해 주세요.",
+    "Permission denied. Please sign in again and grant file access.": "권한이 거부되었습니다. 다시 로그인하여 파일 액세스 권한을 부여해 주세요.",
+    "SyncManager: Invalid grant detected. Signing out.": "SyncManager: 유효하지 않은 권한 부여(invalid grant)가 감지되었습니다. 로그아웃 중.",
+    "SyncManager: Permission denied detected. Signing out.": "SyncManager: 권한 거부(Permission denied)가 감지되었습니다. 로그아웃 중.",
+    "GoogleAuthProvider: Invalid grant detected. Signing out.": "GoogleAuthProvider: 유효하지 않은 권한 부여가 감지되었습니다. 로그아웃 중."
 }

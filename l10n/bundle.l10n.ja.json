@@ -599,5 +599,10 @@
     "Tok": "トーク",
     "Access Denied": "アクセスが拒否されました",
     "Your ID": "あなたのID",
-    "Please ask the owner to add your ID or Username to the configuration.": "所有者に連絡して、IDまたはユーザー名を構成に追加してもらうように依頼してください。"
+    "Please ask the owner to add your ID or Username to the configuration.": "所有者に連絡して、IDまたはユーザー名を構成に追加してもらうように依頼してください。",
+    "Google Drive session expired. Please sign in again.": "Googleドライブのセッションが切れました。もう一度サインインしてください。",
+    "Permission denied. Please sign in again and grant file access.": "アクセスが拒否されました。もう一度サインインして、ファイルへのアクセスを許可してください。",
+    "SyncManager: Invalid grant detected. Signing out.": "SyncManager: 無効な権限付与（invalid grant）が検出されました。サインアウトします。",
+    "SyncManager: Permission denied detected. Signing out.": "SyncManager: アクセス拒否（Permission denied）が検出されました。サインアウトします。",
+    "GoogleAuthProvider: Invalid grant detected. Signing out.": "GoogleAuthProvider: 無効な権限付与が検出されました。サインアウトします。"
 }

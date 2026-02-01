@@ -75,7 +75,7 @@ export class ProfileManager {
                             candidates.push(fullPath);
                         }
                     }
-                } catch (e) {
+                } catch {
                     // console.error(`Error reading storage root ${storageRoot}:`, e);
                 }
             }
@@ -479,7 +479,7 @@ export class ProfileManager {
                     try {
                         await this.saveProfile(name);
                         vscode.window.showInformationMessage(lm.t('Profile "{0}" saved.', name));
-                    } catch (e) {
+                    } catch {
                         // Error is already shown in saveProfile or thrown
                     }
                 }

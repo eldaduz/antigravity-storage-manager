@@ -599,5 +599,10 @@
     "Tok": "Token",
     "Access Denied": "Truy cập bị từ chối",
     "Your ID": "ID của bạn",
-    "Please ask the owner to add your ID or Username to the configuration.": "Vui lòng yêu cầu chủ sở hữu thêm ID hoặc Tên người dùng của bạn vào cấu hình."
+    "Please ask the owner to add your ID or Username to the configuration.": "Vui lòng yêu cầu chủ sở hữu thêm ID hoặc Tên người dùng của bạn vào cấu hình.",
+    "Google Drive session expired. Please sign in again.": "Phiên Google Drive đã hết hạn. Vui lòng đăng nhập lại.",
+    "Permission denied. Please sign in again and grant file access.": "Quyền truy cập bị từ chối. Vui lòng đăng nhập lại và cấp quyền truy cập tệp.",
+    "SyncManager: Invalid grant detected. Signing out.": "SyncManager: Phát hiện cấp quyền không hợp lệ (invalid grant). Đang đăng xuất.",
+    "SyncManager: Permission denied detected. Signing out.": "SyncManager: Phát hiện quyền bị từ chối (Permission denied). Đang đăng xuất.",
+    "GoogleAuthProvider: Invalid grant detected. Signing out.": "GoogleAuthProvider: Phát hiện cấp quyền không hợp lệ. Đang đăng xuất."
 }

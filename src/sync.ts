@@ -973,6 +973,46 @@ export class SyncManager {
                 return null;
             }
         } catch (error: any) {
+            const msg = error.message || '';
+            const isInvalidGrant = msg.includes('invalid_grant') ||
+                (error.response && error.response.data && error.response.data.error === 'invalid_grant');
+
+            // "Permission denied. Please remove and re-add this account, ensuring you grant the file access permission."
+            // Checking for key phrases
+            const isPermissionDenied = msg.includes('Permission denied') && (msg.includes('file access permission') || msg.includes('insufficient permission') || msg.includes('Insufficient Permission'));
+
+            if (isInvalidGrant) {
+                console.warn(lm.t('SyncManager: Invalid grant detected. Signing out.'));
+                this.authProvider.signOut();
+
+                const signIn = lm.t('Sign In');
+                vscode.window.showWarningMessage(
+                    lm.t('Google Drive session expired. Please sign in again.'),
+                    signIn
+                ).then(selection => {
+                    if (selection === signIn) {
+                        this.authProvider.signIn();
+                    }
+                });
+                return null;
+            }
+
+            if (isPermissionDenied) {
+                console.warn(lm.t('SyncManager: Permission denied detected. Signing out.'));
+                this.authProvider.signOut();
+
+                const signIn = lm.t('Sign In');
+                vscode.window.showWarningMessage(
+                    lm.t('Permission denied. Please sign in again and grant file access.'),
+                    signIn
+                ).then(selection => {
+                    if (selection === signIn) {
+                        this.authProvider.signIn();
+                    }
+                });
+                return null;
+            }
+
             vscode.window.showErrorMessage(lm.t('Failed to get/decrypt manifest: {0}', error.message));
             return null;
         }

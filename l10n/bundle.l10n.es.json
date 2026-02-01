@@ -599,5 +599,10 @@
     "Tok": "Tok",
     "Access Denied": "Acceso denegado",
     "Your ID": "Tu ID",
-    "Please ask the owner to add your ID or Username to the configuration.": "Por favor, pide al propietario que añada tu ID o nombre de usuario a la configuración."
+    "Please ask the owner to add your ID or Username to the configuration.": "Por favor, pide al propietario que añada tu ID o nombre de usuario a la configuración.",
+    "Google Drive session expired. Please sign in again.": "La sesión de Google Drive ha caducado. Por favor, inicie sesión de nuevo.",
+    "Permission denied. Please sign in again and grant file access.": "Permiso denegado. Por favor, inicie sesión de nuevo y conceda acceso a los archivos.",
+    "SyncManager: Invalid grant detected. Signing out.": "SyncManager: Concesión no válida detectada (invalid grant). Cerrando sesión.",
+    "SyncManager: Permission denied detected. Signing out.": "SyncManager: Permiso denegado detectado (Permission denied). Cerrando sesión.",
+    "GoogleAuthProvider: Invalid grant detected. Signing out.": "GoogleAuthProvider: Concesión no válida detectada. Cerrando sesión."
 }

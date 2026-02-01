@@ -599,5 +599,10 @@
     "Tok": "رمز",
     "Access Denied": "تم رفض الوصول",
     "Your ID": "معرفك",
-    "Please ask the owner to add your ID or Username to the configuration.": "يرجى الطلب من المالك إضافة معرفك أو اسم المستخدم الخاص بك إلى التكوين."
+    "Please ask the owner to add your ID or Username to the configuration.": "يرجى الطلب من المالك إضافة معرفك أو اسم المستخدم الخاص بك إلى التكوين.",
+    "Google Drive session expired. Please sign in again.": "انتهت جلسة Google Drive. يرجى تسجيل الدخول مرة أخرى.",
+    "Permission denied. Please sign in again and grant file access.": "تم رفض الإذن. يرجى تسجيل الدخول مرة أخرى ومنح حق الوصول إلى الملفات.",
+    "SyncManager: Invalid grant detected. Signing out.": "SyncManager: تم اكتشاف منح غير صالح (invalid grant). تسجيل الخروج.",
+    "SyncManager: Permission denied detected. Signing out.": "SyncManager: تم اكتشاف رفض الإذن (Permission denied). تسجيل الخروج.",
+    "GoogleAuthProvider: Invalid grant detected. Signing out.": "GoogleAuthProvider: تم اكتشاف منح غير صالح. تسجيل الخروج."
 }

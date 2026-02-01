@@ -5,6 +5,16 @@ All notable changes to the **Antigravity Storage Manager** extension will be doc
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.4] - 2026-02-02
+### Authentication & Error Handling
+- **Smart Error Recovery**: Implemented sophisticated handling for `invalid_grant` (expired session) and `Permission denied` (missing scope) errors.
+  - **Auto-Protection**: The extension now automatically signs out to prevent invalid states and prompts the user to re-authenticate with a single click.
+  - **Clear Guidance**: Users receive specific, localized instructions on why the error occurred (e.g., "Google Drive session expired").
+- **Localized Logs**: Technical error logs (`console.warn`) for authentication issues are now fully localized into all 16 supported languages, making debugging easier for non-English users.
+
+### Code Quality
+- **Linting**: Resolved unused variable warnings in `ProfileManager` to ensure codebase cleanliness.
+
 ## [0.12.3] - 2026-02-01
 ### Profile Switching
 - **Standalone IDE Fix**: Restored correct configuration directory detection for Standalone Antigravity/Codeium IDEs, fixing an issue where profiles could not be found or saved.

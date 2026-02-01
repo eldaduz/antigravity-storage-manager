@@ -307,7 +307,7 @@ export class GoogleAuthProvider {
                 (error.response && error.response.data && error.response.data.error === 'invalid_grant');
 
             if (isInvalidGrant) {
-                console.warn('GoogleAuthProvider: Invalid grant detected. Signing out.');
+                console.warn(lm.t('GoogleAuthProvider: Invalid grant detected. Signing out.'));
                 await this.signOut();
 
                 const signIn = lm.t('Sign In');

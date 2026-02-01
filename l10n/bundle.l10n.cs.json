@@ -599,5 +599,10 @@
     "Tok": "Tok",
     "Access Denied": "Přístup zamítnut",
     "Your ID": "Vaše ID",
-    "Please ask the owner to add your ID or Username to the configuration.": "Požádejte prosím vlastníka, aby přidal vaše ID nebo uživatelské jméno do konfigurace."
+    "Please ask the owner to add your ID or Username to the configuration.": "Požádejte prosím vlastníka, aby přidal vaše ID nebo uživatelské jméno do konfigurace.",
+    "Google Drive session expired. Please sign in again.": "Relace disku Google vypršela. Přihlaste se prosím znovu.",
+    "Permission denied. Please sign in again and grant file access.": "Přístup odepřen. Přihlaste se prosím znovu a povolte přístup k souborům.",
+    "SyncManager: Invalid grant detected. Signing out.": "SyncManager: Zjištěno neplatné oprávnění (invalid grant). Odhlašování.",
+    "SyncManager: Permission denied detected. Signing out.": "SyncManager: Zjištěno odepření přístupu (Permission denied). Odhlašování.",
+    "GoogleAuthProvider: Invalid grant detected. Signing out.": "GoogleAuthProvider: Zjištěno neplatné oprávnění. Odhlašování."
 }
