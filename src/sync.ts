@@ -949,7 +949,7 @@ export class SyncManager {
 
         const lm = LocalizationManager.getInstance();
         try {
-            if (!this.driveService) return null;
+            if (!this.authProvider.isAuthenticated() || !this.driveService) return null;
             const encrypted = await this.driveService.getManifest();
 
             if (!encrypted) {

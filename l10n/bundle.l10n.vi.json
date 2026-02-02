@@ -608,5 +608,7 @@
     "[GoogleDrive] Retry {0}/{1} for \"{2}\" due to error: {3}. Waiting {4}ms": "[GoogleDrive] Thử lại {0}/{1} cho \"{2}\" do lỗi: {3}. Đang đợi {4}ms",
     "Check existence of {0}": "Kiểm tra sự tồn tại của {0}",
     "Update file {0}": "Cập nhật tệp {0}",
-    "Create file {0}": "Tạo tệp {0}"
+    "Create file {0}": "Tạo tệp {0}",
+    "Reindex Conversations": "Lập lại chỉ mục cuộc hội thoại",
+    "Fix missing conversations from other devices": "Sửa các cuộc hội thoại bị thiếu từ các thiết bị khác"
 }

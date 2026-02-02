@@ -5,6 +5,11 @@ All notable changes to the **Antigravity Storage Manager** extension will be doc
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.6] - 2026-02-02
+### Fixes & Improvements
+- **Startup Stability**: Fixed an issue where the "Failed to get/decrypt manifest" error could appear on startup if the user was not authenticated.
+- **Localization**: Added full localization for the "Reindex Conversations" command and its description across all 16 supported languages.
+
 ## [0.12.5] - 2026-02-02
 ### Network Stability
 - **SSL/Network Retry Logic**: Implemented robust retry mechanism for Google Drive API operations to automatically recover from `SSLV3_ALERT_BAD_RECORD_MAC`, `ECONNRESET`, and other transient network errors.

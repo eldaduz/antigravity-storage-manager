@@ -608,5 +608,7 @@
     "[GoogleDrive] Retry {0}/{1} for \"{2}\" due to error: {3}. Waiting {4}ms": "[GoogleDrive] Réessai {0}/{1} pour \"{2}\" en raison de l'erreur : {3}. Attente de {4}ms",
     "Check existence of {0}": "Vérification de l'existence de {0}",
     "Update file {0}": "Mise à jour du fichier {0}",
-    "Create file {0}": "Création du fichier {0}"
+    "Create file {0}": "Création du fichier {0}",
+    "Reindex Conversations": "Réindexer les conversations",
+    "Fix missing conversations from other devices": "Corriger les conversations manquantes d'autres appareils"
 }

@@ -608,5 +608,7 @@
     "[GoogleDrive] Retry {0}/{1} for \"{2}\" due to error: {3}. Waiting {4}ms": "[GoogleDrive] エラーのため \"{2}\" の再試行 {0}/{1}: {3}。{4}ms 待機中",
     "Check existence of {0}": "{0} の存在確認",
     "Update file {0}": "ファイル {0} を更新",
-    "Create file {0}": "ファイル {0} を作成"
+    "Create file {0}": "ファイル {0} を作成",
+    "Reindex Conversations": "会話の再インデックス",
+    "Fix missing conversations from other devices": "他のデバイスからの欠落した会話を修復"
 }

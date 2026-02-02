@@ -608,5 +608,7 @@
     "[GoogleDrive] Retry {0}/{1} for \"{2}\" due to error: {3}. Waiting {4}ms": "[GoogleDrive] 由於錯誤 {3}，正在重試 \"{2}\" ({0}/{1})。等待 {4}ms",
     "Check existence of {0}": "檢查 {0} 是否存在",
     "Update file {0}": "更新檔案 {0}",
-    "Create file {0}": "建立檔案 {0}"
+    "Create file {0}": "建立檔案 {0}",
+    "Reindex Conversations": "重新索引對話",
+    "Fix missing conversations from other devices": "修復來自其他裝置的缺失對話"
 }

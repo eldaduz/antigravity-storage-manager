@@ -608,5 +608,7 @@
     "[GoogleDrive] Retry {0}/{1} for \"{2}\" due to error: {3}. Waiting {4}ms": "[GoogleDrive] Hata nedeniyle \"{2}\" için tekrar deneme {0}/{1}: {3}. {4}ms bekleniyor",
     "Check existence of {0}": "{0} varlığı kontrol ediliyor",
     "Update file {0}": "Dosya {0} güncelleniyor",
-    "Create file {0}": "Dosya {0} oluşturuluyor"
+    "Create file {0}": "Dosya {0} oluşturuluyor",
+    "Reindex Conversations": "Konuşmaları Yeniden Dizine Ekle",
+    "Fix missing conversations from other devices": "Diğer cihazlardan eksik konuşmaları düzelt"
 }

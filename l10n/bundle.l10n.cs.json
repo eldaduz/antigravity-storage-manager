@@ -608,5 +608,7 @@
     "[GoogleDrive] Retry {0}/{1} for \"{2}\" due to error: {3}. Waiting {4}ms": "[GoogleDrive] Opakování {0}/{1} pro \"{2}\" z důvodu chyby: {3}. Čekání {4}ms",
     "Check existence of {0}": "Kontrola existence {0}",
     "Update file {0}": "Aktualizace souboru {0}",
-    "Create file {0}": "Vytvoření souboru {0}"
+    "Create file {0}": "Vytvoření souboru {0}",
+    "Reindex Conversations": "Přeindexovat konverzace",
+    "Fix missing conversations from other devices": "Opravit chybějící konverzace z jiných zařízení"
 }
