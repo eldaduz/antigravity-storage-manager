@@ -4,6 +4,8 @@ import * as path from 'path';
 import * as os from 'os';
 import archiver from 'archiver';
 import extract from 'extract-zip';
+import { ProxyManager } from './proxy/proxyManager';
+import { ProxyDashboardWebview } from './proxy/proxyDashboardWebview';
 import { GoogleAuthProvider } from './googleAuth';
 import { SyncManager } from './sync';
 import { getConversationsAsync, ConversationItem, formatSize } from './utils';
@@ -32,9 +34,11 @@ let backupManager: BackupManager;
 let quotaManager: QuotaManager;
 let diagnosticsManager: DiagnosticsManager;
 let profileManager: ProfileManager;
+let proxyManager: ProxyManager;
 let telegramService: TelegramService;
 let statsScheduler: StatsScheduler;
 let telegramCommandController: TelegramCommandController;
+let proxyDashboard: ProxyDashboardWebview;
 
 export async function activate(context: vscode.ExtensionContext) {
     console.log(`Congratulations, "${EXT_NAME}" is now active!`);
@@ -69,11 +73,18 @@ export async function activate(context: vscode.ExtensionContext) {
     // Initialize Command Controller
     telegramCommandController = new TelegramCommandController(telegramService, quotaManager, syncManager);
 
-    // Register disposables
-    context.subscriptions.push(telegramService, statsScheduler, telegramCommandController);
-
     // Initialize Diagnostics Manager
     diagnosticsManager = new DiagnosticsManager(authProvider, quotaManager);
+
+    // Initialize Proxy Manager
+    proxyManager = new ProxyManager(context, STORAGE_ROOT);
+    await proxyManager.initialize();
+
+    // Initialize Proxy Dashboard
+    proxyDashboard = new ProxyDashboardWebview(context.extensionUri, proxyManager);
+
+    // Register disposables containing proxyManager
+    context.subscriptions.push(telegramService, statsScheduler, telegramCommandController, proxyManager);
 
     // Register existing commands
     context.subscriptions.push(
@@ -100,6 +111,15 @@ export async function activate(context: vscode.ExtensionContext) {
             });
         }),
         vscode.commands.registerCommand(`${EXT_NAME}.resolveConflicts`, () => resolveConflictsCommand(BRAIN_DIR, CONV_DIR)),
+
+        vscode.commands.registerCommand(`${EXT_NAME}.proxy.dashboard`, () => {
+            proxyDashboard.show();
+        }),
+
+        vscode.commands.registerCommand(`${EXT_NAME}.statusAction`, () => {
+            proxyDashboard.show();
+            proxyManager.showLog();
+        }),
 
         // Account Management Commands
         vscode.commands.registerCommand(`${EXT_NAME}.addAccount`, async () => {
@@ -580,6 +600,16 @@ export async function activate(context: vscode.ExtensionContext) {
         }),
         vscode.commands.registerCommand(`${EXT_NAME}.openCurrentConversation`, async () => {
             await syncManager.openCurrentConversation();
+        }),
+        // Proxy Commands
+        vscode.commands.registerCommand(`${EXT_NAME}.proxy.start`, async () => {
+            await proxyManager.start();
+        }),
+        vscode.commands.registerCommand(`${EXT_NAME}.proxy.stop`, async () => {
+            await proxyManager.stop();
+        }),
+        vscode.commands.registerCommand(`${EXT_NAME}.proxy.install`, async () => {
+            await proxyManager.install();
         })
     );
 

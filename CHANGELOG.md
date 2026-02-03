@@ -5,6 +5,61 @@ All notable changes to the **Antigravity Storage Manager** extension will be doc
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2026-02-04
+### Antigravity Proxy – Unified AI Gateway
+Introducing the **Antigravity Proxy**, a powerful local proxy server that unifies access to multiple AI providers (Antigravity, GitHub Copilot, Claude, Codex, Gemini, Z.AI, Kiro, Vertex, and more) through a single OpenAI-compatible endpoint.
+
+#### Dashboard & Management
+- **Visual Dashboard**: Modern, interactive dashboard (`Antigravity Proxy Dashboard` command) with glassmorphism design, provider cards, and status indicators.
+- **Provider Cards**: Each AI provider is displayed as a card with:
+    - **Status Badge**: Connected (🟢), Not Configured (⚪), or Error (🔴)
+    - **Actions**: Sign In, Configure, Test Connection, Delete Auth
+    - **Multi-Account Support**: Manage multiple authentication tokens per provider (e.g., multiple Antigravity or Codex accounts)
+- **API Keys Management**: Generate, view, enable/disable, and delete local API keys directly from the dashboard.
+- **Management Secret Key**: Securely manage the proxy's Web UI password with reveal, change, and reset options.
+
+#### Provider Support
+- **OAuth Providers**: One-click Sign In via OAuth for:
+    - **Antigravity** (Google AI Studio)
+    - **Codex** (OpenAI Codex CLI)
+    - **GitHub Copilot** (using VS Code's built-in GitHub authentication)
+- **API Key Providers**: Configure by entering an API key for:
+    - **Claude** (Anthropic)
+    - **Gemini** (Google AI)
+    - **Z.AI** (GLM-4 Plus, GLM-4.7, GLM-4.6)
+    - **Vertex** (Google Cloud)
+    - **Kiro** (AWS)
+- **Model Selection**: Choose the active model for Z.AI directly from the dashboard.
+- **Test Connection**: Quickly test any configured provider with a single click.
+
+#### Proxy Control
+- **Start/Stop/Restart**: Control the proxy lifecycle directly from the dashboard or via commands (`Antigravity Proxy: Start`, `Stop`, `Install`).
+- **Status Bar**: Real-time status indicator (`AG Proxy: ON/OFF/Starting/Error`) in the VS Code status bar.
+- **Auto-Start**: Optionally auto-start the proxy when VS Code launches (`proxy.enabled` setting).
+- **Output Channel**: Dedicated "Antigravity Proxy" output channel for logs and debugging.
+
+#### Auto-Installation
+- **One-Click Install**: Automatically downloads and installs the correct `cliproxy` binary for your platform (Windows, macOS, Linux) from GitHub Releases.
+- **Update Support**: Easily update to the latest version by re-running the install command.
+
+#### Configuration
+- **Auto-Config**: Automatically generates `config.yaml` with sensible defaults and random API keys on first run.
+- **Upstream Proxy**: Configure an upstream proxy URL (`proxy.upstreamUrl` setting) for corporate environments.
+- **Custom Binary Path**: Override the default binary location via `proxy.binaryPath` setting.
+- **Port**: Configurable port (default: 8317) via `proxy.port` setting.
+
+#### Port Conflict Handling
+- **Smart Detection**: Automatically detects "address already in use" errors when starting the proxy.
+- **Kill Process**: Offers a one-click option to kill the process occupying the port and retry.
+
+#### Integration & UX
+- **Auth File Watcher**: The dashboard automatically refreshes when auth files are added, removed, or modified in the `auth-dir`.
+- **Open Config**: Direct access to `config.yaml` from the dashboard for advanced users.
+- **Show Logs**: View proxy logs in the Output panel from the dashboard.
+- **Localization**: Full localization of all dashboard elements across all 16 supported languages.
+
+---
+
 ## [0.12.6] - 2026-02-02
 ### Fixes & Improvements
 - **Startup Stability**: Fixed an issue where the "Failed to get/decrypt manifest" error could appear on startup if the user was not authenticated.

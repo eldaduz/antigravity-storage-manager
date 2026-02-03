@@ -2,7 +2,7 @@
     "name": "antigravity-storage-manager",
     "displayName": "Antigravity Storage Manager",
     "description": "Securely sync Antigravity Conversations with Google Drive. Features Telegram Bot notifications, Multi-Account Profile Switching, Real-time Quota Monitoring, MCP Server Status validation, and advanced backup tools.",
-    "version": "0.12.6",
+    "version": "0.13.0",
     "publisher": "unchase",
     "author": {
         "name": "unchase"
@@ -96,6 +96,12 @@
                 "category": "%antigravity.submenu.label%"
             },
             {
+                "command": "antigravity-storage-manager.proxy.dashboard",
+                "title": "%antigravity.command.proxyDashboard%",
+                "icon": "$(dashboard)",
+                "category": "%antigravity.submenu.label%"
+            },
+            {
                 "command": "antigravity-storage-manager.syncNow",
                 "title": "%antigravity.command.syncNow%",
                 "icon": "$(sync)",
@@ -161,13 +167,28 @@
             },
             {
                 "command": "antigravity-storage-manager.debugProfile",
-                "title": "Debug Profile Paths",
-                "category": "Antigravity (Debug)"
+                "title": "%antigravity.command.debugProfile%",
+                "category": "%antigravity.category.debug%"
             },
             {
                 "command": "antigravity-storage-manager.openCurrentConversation",
                 "title": "%antigravity.command.openCurrentConversation%",
                 "icon": "$(open-preview)",
+                "category": "%antigravity.submenu.label%"
+            },
+            {
+                "command": "antigravity-storage-manager.proxy.start",
+                "title": "%antigravity.command.proxy.start%",
+                "category": "%antigravity.submenu.label%"
+            },
+            {
+                "command": "antigravity-storage-manager.proxy.stop",
+                "title": "%antigravity.command.proxy.stop%",
+                "category": "%antigravity.submenu.label%"
+            },
+            {
+                "command": "antigravity-storage-manager.proxy.install",
+                "title": "%antigravity.command.proxy.install%",
                 "category": "%antigravity.submenu.label%"
             }
         ],
@@ -514,7 +535,7 @@
                 "antigravity-storage-manager.telegram.botToken": {
                     "type": "string",
                     "default": "",
-                    "description": "Telegram Bot Token for notifications",
+                    "description": "%antigravity.config.telegram.botToken%",
                     "scope": "application"
                 },
                 "antigravity-storage-manager.telegram.userIds": {
@@ -523,7 +544,7 @@
                         "type": "string"
                     },
                     "default": [],
-                    "description": "Telegram User IDs to receive notifications"
+                    "description": "%antigravity.config.telegram.userIds%"
                 },
                 "antigravity-storage-manager.telegram.usernames": {
                     "type": "array",
@@ -531,12 +552,47 @@
                         "type": "string"
                     },
                     "default": [],
-                    "description": "Telegram Usernames (without @) to allow. Bot must interact with user to resolve ID."
+                    "description": "%antigravity.config.telegram.usernames%"
                 },
                 "antigravity-storage-manager.telegram.statsIntervalCron": {
                     "type": "string",
                     "default": "0 */12 * * *",
-                    "description": "Cron expression for periodic statistics notifications (default: every 12 hours)"
+                    "description": "%antigravity.config.telegram.statsIntervalCron%"
+                },
+                "antigravity-storage-manager.proxy.enabled": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "%antigravity.config.proxy.enabled%",
+                    "scope": "application"
+                },
+                "antigravity-storage-manager.proxy.port": {
+                    "type": "number",
+                    "default": 8317,
+                    "description": "%antigravity.config.proxy.port%",
+                    "scope": "application"
+                },
+                "antigravity-storage-manager.proxy.autoConfig": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "%antigravity.config.proxy.autoConfig%"
+                },
+                "antigravity-storage-manager.proxy.binaryPath": {
+                    "type": "string",
+                    "default": "",
+                    "description": "%antigravity.config.proxy.binaryPath%",
+                    "scope": "application"
+                },
+                "antigravity.config.proxy.binaryPath": {
+                    "type": "string",
+                    "default": "",
+                    "description": "%antigravity.config.proxy.binaryPath%",
+                    "scope": "application"
+                },
+                "antigravity.config.proxy.upstreamUrl": {
+                    "type": "string",
+                    "default": "",
+                    "description": "%antigravity.config.proxy.upstreamUrl%",
+                    "scope": "application"
                 }
             }
         },

@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <strong>Securely sync Antigravity Conversations with Google Drive. Features Telegram Bot notifications, Multi-Account Profile Switching, Real-time Quota Monitoring, MCP Server Status validation, and advanced backup tools.</strong><br>
+  <strong>Unified AI Gateway with visual dashboard, secure Google Drive sync, Telegram notifications, multi-account profiles, real-time quota monitoring, MCP server validation, and advanced backup tools.</strong><br>
 </p>
 
 <p align="center">
@@ -43,6 +43,7 @@ If you find this extension useful, consider supporting the development:
 
 ![Status Bar Menu](https://raw.githubusercontent.com/unchase/antigravity-storage-manager/master/screenshots/status-menu.png)
 
+- 🚀 **Antigravity Proxy** — Unified AI Gateway with visual dashboard to manage multiple AI providers (Antigravity, Copilot, Claude, Codex, Gemini, Z.AI, and more) through a single endpoint.
 - 🤖 **Telegram Bot Integration** — Real-time quota alerts, system stats, and remote sync control via interactive bot.
 - 👤 **Multi-Account Profiles** — Seamlessly switch between different Antigravity accounts (e.g., Personal vs Work) with separate quotas and settings.
 - 📊 **Advanced Quota Dashboard** — Comprehensive real-time tracking of consumption speed, reset cycles, and remaining time estimates with visual indicators.
@@ -51,7 +52,7 @@ If you find this extension useful, consider supporting the development:
 - 🌍 **Global Localization** — Native support for **16 languages** (English, Russian, Chinese, Japanese, Korean, German, French, Spanish, Italian, Portuguese, Polish, Vietnamese, Arabic, Czech, Turkish).
 - 🔄 **Live Updates** — Seamlessly syncs data between the status bar and dashboard every minute for up-to-the-second accuracy.
 - 🔍 **Account Insights** — Monitor your Plan/Tier, specific feature availability (Web Search, Browser Tool), and raw Google API responses.
-- �️ **Proxy Support** — Full support for corporate proxies with authentication and strict SSL configuration.
+- 🛡️ **Proxy Support** — Full support for corporate proxies with authentication and strict SSL configuration.
 - 📦 **Export/Import** — Backup conversations to ZIP archives individually or in bulk with conflict detection.
 - 🛑 **Cancellation Support** — Abort long-running operations (Sync, Export, Backup) safely at any time.
 - 🛠️ **Smart Configuration** — Auto-detects missing sync setup and prompts for configuration on startup.
@@ -162,7 +163,61 @@ MCP servers are configured in `~/.gemini/antigravity/mcp/mcp_config.json`. The p
 
 ---
 
-## Proxy Configuration (New!)
+## Antigravity Proxy – Unified AI Gateway (New!)
+
+![Antigravity Proxy Dashboard](https://raw.githubusercontent.com/unchase/antigravity-storage-manager/master/images/proxy-dashboard.png)
+
+*(Fig. 5: Antigravity Proxy Dashboard)*
+
+The **Antigravity Proxy** is a local proxy server that unifies access to multiple AI providers through a single OpenAI-compatible endpoint. Manage all your AI providers from a beautiful visual dashboard without leaving VS Code.
+
+### Supported Providers
+- **OAuth Providers** (one-click Sign In):
+    - **Antigravity** (Google AI Studio)
+    - **Codex** (OpenAI Codex CLI)
+    - **GitHub Copilot** (using VS Code's built-in authentication)
+- **API Key Providers**:
+    - **Claude** (Anthropic)
+    - **Gemini** (Google AI)
+    - **Z.AI** (GLM-4 Plus, GLM-4.7, GLM-4.6)
+    - **Vertex** (Google Cloud)
+    - **Kiro** (AWS)
+
+### Dashboard Features
+- **Provider Cards**: Each provider is displayed as an interactive card with:
+    - **Status Badge**: Connected (🟢), Not Configured (⚪), or Error (🔴)
+    - **Actions**: Sign In, Configure, Test Connection, Delete Auth
+    - **Multi-Account Support**: Manage multiple authentication tokens per provider
+- **API Keys Management**: Generate, view, enable/disable, and delete local API keys.
+- **Management Secret Key**: Securely manage the proxy's Web UI password.
+- **Proxy Control**: Start, Stop, and Restart the proxy directly from the dashboard.
+- **Status Bar**: Real-time indicator (`AG Proxy: ON/OFF`) in the VS Code status bar.
+
+### Quick Start
+1. Open Command Palette (`Ctrl+Shift+P`).
+2. Run `Antigravity Proxy: Dashboard`.
+3. If the proxy binary is not installed, click **Install Proxy** to download it automatically.
+4. Click **Start Proxy** to launch the server.
+5. Configure your providers by clicking **Sign In** or **Configure** on their cards.
+6. Use the generated API Key in your applications with endpoint `http://127.0.0.1:8317/v1`.
+
+### Configuration
+- **Port**: `antigravity.proxy.port` (default: `8317`)
+- **Auto-Start**: `antigravity.proxy.enabled` — Start proxy automatically when VS Code launches.
+- **Upstream Proxy**: `antigravity.proxy.upstreamUrl` — Route proxy traffic through corporate proxy.
+- **Binary Path**: `antigravity.proxy.binaryPath` — Custom path to `cliproxy` executable.
+
+### Commands
+- `Antigravity Proxy: Dashboard` — Open the visual dashboard.
+- `Antigravity Proxy: Start` — Start the proxy server.
+- `Antigravity Proxy: Stop` — Stop the proxy server.
+- `Antigravity Proxy: Install` — Download and install the proxy binary.
+- `Antigravity Proxy: Show Log` — Open the proxy output channel for debugging.
+- `Antigravity Proxy: Open Config` — Edit `config.yaml` directly.
+
+---
+
+## Corporate Proxy Configuration
 
 If you are behind a corporate proxy, you can configure Antigravity to route its internal requests through your proxy server.
 
