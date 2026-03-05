@@ -8,6 +8,7 @@ export interface ConversationItem extends vscode.QuickPickItem {
     lastModified: Date;
     createdAt: Date;
     status?: 'synced' | 'imported' | 'local' | 'conflict';
+    text?: string;
 }
 
 /**
@@ -54,7 +55,10 @@ export async function getConversationsAsync(brainDir: string): Promise<Conversat
     try {
         const entries = await fs.promises.readdir(brainDir);
 
-        const jobs = entries.map(async (id) => {
+        // Read concurrency limit from settings (reuse sync.concurrency)
+        const concurrencyLimit = vscode.workspace.getConfiguration('antigravity-storage-manager').get<number>('sync.concurrency', 3);
+
+        const jobFactories = entries.map((id) => async (): Promise<ConversationItem | null> => {
             const dirPath = path.join(brainDir, id);
             try {
                 const stats = await fs.promises.stat(dirPath);
@@ -136,7 +140,18 @@ export async function getConversationsAsync(brainDir: string): Promise<Conversat
             }
         });
 
-        const results = await Promise.all(jobs);
+        // Use limited concurrency worker pool instead of unbounded Promise.all
+        const results: (ConversationItem | null)[] = [];
+        const queue = [...jobFactories];
+        const worker = async () => {
+            while (queue.length > 0) {
+                const factory = queue.shift();
+                if (!factory) break;
+                results.push(await factory());
+            }
+        };
+        await Promise.all(Array(Math.min(concurrencyLimit, jobFactories.length)).fill(null).map(() => worker()));
+
         const items = results.filter((i): i is ConversationItem => i !== null);
 
         // Sort by newer first

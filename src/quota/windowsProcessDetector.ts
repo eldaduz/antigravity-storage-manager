@@ -22,10 +22,27 @@ export class WindowsProcessDetector implements IPlatformStrategy {
     getProcessListCommand(processName: string): string {
         if (this.usePowerShell) {
             const psPath = SafePowerShellPath.getSafePath();
-            return `${psPath} -NoProfile -Command "Get-CimInstance Win32_Process -Filter \\"name='${processName}'\\" | Select-Object ProcessId,CommandLine | ConvertTo-Json"`;
+            // Two-step approach: Get-Process (fast, no WMI) + ManagementObject (direct WMI by PID, bypasses WQL)
+            // Get-CimInstance/Get-WmiObject with WQL filter can hang or fail if CIM/WinRM services are broken
+            const procNameNoExt = processName.replace(/\.exe$/i, '');
+            const script = `$procs = @(Get-Process -Name '${procNameNoExt}' -ErrorAction SilentlyContinue); if ($procs.Count -gt 0) { $result = @(); foreach ($p in $procs) { try { $wmi = [System.Management.ManagementObject]::new("Win32_Process.Handle='$($p.Id)'"); $result += @{ProcessId=$p.Id; CommandLine=$wmi['CommandLine']} } catch {} }; if ($result.Count -gt 0) { $result | ConvertTo-Json } else { Write-Output '[]' } } else { Write-Output '[]' }`;
+            const encoded = Buffer.from(script, 'utf16le').toString('base64');
+            return `${psPath} -NoProfile -EncodedCommand ${encoded}`;
         } else {
             return `${WindowsProcessDetector.WMIC_PATH} process where "name='${processName}'" get ProcessId,CommandLine /format:list`;
         }
+    }
+
+    getProcessListCommandParts(processName: string): { file: string; args: string[] } | undefined {
+        if (this.usePowerShell) {
+            // Direct call via execFile — bypasses cmd.exe entirely, no quoting issues
+            // Two-step: Get-Process (fast, no WMI) + ManagementObject (direct WMI by PID)
+            const psPath = SafePowerShellPath.getSafePath().replace(/"/g, '');
+            const procNameNoExt = processName.replace(/\.exe$/i, '');
+            const script = `$procs = @(Get-Process -Name '${procNameNoExt}' -ErrorAction SilentlyContinue); if ($procs.Count -gt 0) { $result = @(); foreach ($p in $procs) { try { $wmi = [System.Management.ManagementObject]::new("Win32_Process.Handle='$($p.Id)'"); $result += @{ProcessId=$p.Id; CommandLine=$wmi['CommandLine']} } catch {} }; if ($result.Count -gt 0) { $result | ConvertTo-Json } else { Write-Output '[]' } } else { Write-Output '[]' }`;
+            return { file: psPath, args: ['-NoProfile', '-Command', script] };
+        }
+        return undefined;
     }
 
     private isAntigravityProcess(commandLine: string): boolean {
@@ -187,7 +204,7 @@ export class WindowsProcessDetector implements IPlatformStrategy {
                 : lm.t('wmic/PowerShell command unavailable; please check the system environment'),
             requirements: [
                 lm.t('Antigravity is running'),
-                lm.t('language_server_windows_x64.exe process is running'),
+                lm.t('language_server process is running'),
                 this.usePowerShell
                     ? lm.t('The system has permission to run PowerShell and netstat commands')
                     : lm.t('The system has permission to run wmic/PowerShell and netstat commands (auto-fallback supported)')

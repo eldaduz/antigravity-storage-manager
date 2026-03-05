@@ -87,7 +87,8 @@ describe('Sync Redundancy Tests', () => {
         // Mock Auth Provider
         mockAuthProvider = {
             getAccessToken: jest.fn().mockResolvedValue('mock-token'),
-            onDidChangeSessions: jest.fn()
+            onDidChangeSessions: jest.fn(),
+            isAuthenticated: jest.fn().mockReturnValue(true)
         };
 
         // Initialize SyncManager with mocks

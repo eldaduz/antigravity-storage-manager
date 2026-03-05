@@ -1,6 +1,6 @@
 
 import * as vscode from 'vscode';
-import { exec } from 'child_process';
+import { exec, execFile } from 'child_process';
 import { promisify } from 'util';
 import * as https from 'https';
 import { PlatformDetector } from './platformDetector';
@@ -9,6 +9,7 @@ import { versionInfo } from './versionInfo';
 import { LocalizationManager } from '../l10n/localizationManager';
 
 const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 
 export interface AntigravityProcessInfo {
     extensionPort: number;
@@ -20,11 +21,13 @@ export class ProcessPortDetector {
     private platformDetector: PlatformDetector;
     private platformStrategy: IPlatformStrategy;
     private processName: string;
+    private processNames: string[];
 
     constructor() {
         this.platformDetector = new PlatformDetector();
         this.platformStrategy = this.platformDetector.getStrategy();
         this.processName = this.platformDetector.getProcessName();
+        this.processNames = this.platformDetector.getProcessNames();
     }
 
     async detectProcessInfo(maxRetries: number = 3, retryDelay: number = 2000): Promise<AntigravityProcessInfo | null> {
@@ -43,10 +46,48 @@ export class ProcessPortDetector {
             try {
                 console.log('PortDetector', `Attempt ${attempt}/${maxRetries}: Detecting Antigravity process...`);
 
-                const command = this.platformStrategy.getProcessListCommand(this.processName);
-                const { stdout } = await execAsync(command, { timeout: 15000 });
+                let stdout: string;
+                const parts = this.platformStrategy.getProcessListCommandParts?.(this.processName);
+                if (parts) {
+                    // Direct call via execFile — bypasses cmd.exe, no quoting issues
+                    const result = await execFileAsync(parts.file, parts.args, { timeout: 15000 });
+                    stdout = result.stdout;
+                } else {
+                    const command = this.platformStrategy.getProcessListCommand(this.processName);
+                    const result = await execAsync(command, { timeout: 15000 });
+                    stdout = result.stdout;
+                }
 
-                const processInfo = this.platformStrategy.parseProcessInfo(stdout);
+                console.log('PortDetector', `Process list stdout (${stdout.length} chars): ${stdout.substring(0, 500)}`);
+
+                let processInfo = this.platformStrategy.parseProcessInfo(stdout);
+
+                // Fallback: try alternative process names (fixes #12 — ARM64 Windows)
+                if (!processInfo && this.processNames.length > 1) {
+                    for (const altName of this.processNames) {
+                        if (altName === this.processName) continue;
+                        console.log('PortDetector', `Primary process '${this.processName}' not found, trying '${altName}'...`);
+                        try {
+                            let altStdout: string;
+                            const altParts = this.platformStrategy.getProcessListCommandParts?.(altName);
+                            if (altParts) {
+                                const altResult = await execFileAsync(altParts.file, altParts.args, { timeout: 15000 });
+                                altStdout = altResult.stdout;
+                            } else {
+                                const altCommand = this.platformStrategy.getProcessListCommand(altName);
+                                const altResult = await execAsync(altCommand, { timeout: 15000 });
+                                altStdout = altResult.stdout;
+                            }
+                            processInfo = this.platformStrategy.parseProcessInfo(altStdout);
+                            if (processInfo) {
+                                console.log('PortDetector', `Found process using fallback name '${altName}'`);
+                                break;
+                            }
+                        } catch {
+                            // Continue to next alternative
+                        }
+                    }
+                }
 
                 if (!processInfo) {
                     throw new Error('language_server process not found');
@@ -81,10 +122,16 @@ export class ProcessPortDetector {
 
             } catch (error: any) {
                 const errorMsg = error?.message || String(error);
-                const lm = LocalizationManager.getInstance();
-                vscode.window.showErrorMessage(lm.t('PortDetector: Attempt {0} failed ({1})', attempt, errorMsg));
+                if (attempt >= maxRetries) {
+                    // Show error to user only on final attempt
+                    const lm = LocalizationManager.getInstance();
+                    vscode.window.showErrorMessage(lm.t('PortDetector: Attempt {0} failed ({1})', attempt, errorMsg));
+                } else {
+                    console.warn('PortDetector', `Attempt ${attempt}/${maxRetries} failed: ${errorMsg}`);
+                }
 
-                if (errorMsg.includes('not found') || errorMsg.includes('unavailable') || errorMsg.includes('Command failed')) {
+                // Only switch PS↔WMIC on actual command failure, NOT on 'process not found'
+                if (errorMsg.includes('Command failed') || errorMsg.includes('unavailable')) {
                     if (this.platformDetector.getPlatformName() === 'Windows' && !fallbackUsed) {
                         const windowsStrategy = this.platformStrategy as any;
                         const isUsingPowerShell = windowsStrategy.isUsingPowerShell?.();
@@ -143,8 +190,7 @@ export class ProcessPortDetector {
             const ports = this.platformStrategy.parseListeningPorts(stdout, pid);
             return ports;
         } catch (error: any) {
-            const lm = LocalizationManager.getInstance();
-            vscode.window.showErrorMessage(lm.t('PortDetector: Failed to fetch listening ports ({0})', error.message));
+            console.warn('PortDetector', `Failed to fetch listening ports: ${error.message}`);
             return [];
         }
     }

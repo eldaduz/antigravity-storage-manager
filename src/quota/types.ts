@@ -58,6 +58,7 @@ export interface UserStatusResponse {
 // Strategy Interface
 export interface IPlatformStrategy {
     getProcessListCommand(processName: string): string;
+    getProcessListCommandParts?(processName: string): { file: string; args: string[] } | undefined;
     parseProcessInfo(stdout: string): { pid: number; extensionPort: number; csrfToken: string } | null;
     getPortListCommand(pid: number): string;
     getFallbackPortListCommand?(pid: number): string;

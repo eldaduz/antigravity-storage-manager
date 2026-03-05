@@ -5,6 +5,51 @@ All notable changes to the **Antigravity Storage Manager** extension will be doc
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.0] - 2026-03-06
+### Sync Safety & Pre-Sync Backups
+- **Critical Fix**: Resolved a bug where conversations could be overwritten by **older versions** from another device during sync pull operations.
+  - **Per-File Timestamp Check**: `pullConversationPerFile` now compares `lastModified` timestamps and **skips** remote files that are older than local versions.
+  - **Conflict Escalation**: `processSyncItem` now treats a "remote changed only" case as a **conflict** (instead of a blind pull) when the remote `lastModified` is older than local — preventing silent data loss.
+- **Pre-Sync Backups**: Before any pull overwrites local data, a targeted backup of the affected conversation (brain directory + `.pb` file) is automatically created with metadata.
+  - **Configurable Settings**:
+    - `sync.preSyncBackup` (default: `true`) — Enable/disable pre-sync backups.
+    - `sync.preSyncBackupRetention` (default: `20`) — Maximum number of backup snapshots per conversation.
+    - `sync.preSyncBackupPath` (default: `~/.gemini/antigravity/sync-backups/`) — Custom backup storage location.
+  - **Auto-Cleanup**: Old backups are automatically pruned based on the retention limit.
+
+### Bug Fixes
+- **Fix [#7](https://github.com/unchase/antigravity-storage-manager/issues/7)**: Fixed sync configuration state lost on restart — master password key was stored as `ag-sync-master-password` but read as `antigravity-storage-manager.sync.masterPassword`. Unified to a single key with automatic migration from legacy key.
+- **Fix [#9](https://github.com/unchase/antigravity-storage-manager/issues/9)**: Fixed `profilesDirectory` detection on macOS and Linux — `detectConfigDir()` previously relied exclusively on `%APPDATA%` (Windows-only). Now supports `~/Library/Application Support/` (macOS), `~/.config/` / `$XDG_CONFIG_HOME` (Linux), hidden dot-directories (`~/.antigravity/`, `~/.codeium/`, `~/.windsurf/`), and extended IDE coverage (Windsurf, Cursor, VSCodium). Includes multi-level fallback via `globalStorageUri`.
+- **Fix [#12](https://github.com/unchase/antigravity-storage-manager/issues/12)**: Fixed PortDetector failing on ARM64 Windows devices (Surface Pro, Snapdragon X) — process name was hardcoded to `language_server_windows_x64.exe`. Now detects ARM64 architecture and uses fallback process name search.
+- **Fix**: Fixed IDE crash on macOS when switching profiles — `pkill -f Antigravity` was killing the IDE itself. Now only kills the `language_server` process.
+
+### Antigravity Proxy MCP Server
+- **Built-in MCP Server**: Added a Model Context Protocol (MCP) server that wraps the Antigravity Proxy, allowing AI agents to interact with the proxy directly.
+- **MCP Commands**: Added command management to interact with the proxy directly from Antigravity conversations.
+- **New Tools**:
+    - `proxy_status`: Check if the proxy is running and view configured providers.
+    - `list_models`: Retrieve a list of available AI models from the proxy.
+    - `chat_completion`: Send chat messages to AI models via the proxy.
+    - `get_quota`: View quota usage for Antigravity, Gemini CLI, and Codex providers.
+- **New Dashboard Providers**: Added support for **Anthropic (Claude)**, **Qwen**, **Gemini CLI**, and **Kimi (Moonshot)** in the Antigravity Proxy Dashboard.
+- **Profile Enhancements**:
+    - **Quota Display**: Saved profiles now display their quota in the "Switch Profile" view.
+    - **Account Linking**: Added the ability to link an Antigravity account to a specific profile for seamless switching within the provider.
+- **Improvements**: General bug fixes and UI enhancements for the dashboard.
+- **Integration**: Seamless integration with MCP-compliant clients (e.g., Claude for Desktop), providing a standard interface for Antigravity Proxy.
+
+### Sync & Dashboard Bug Fixes
+- **Extension Host Freeze**: Fixed a critical issue where the `.pb` parser would print excessive debugging logs to the console upon finding empty blocks, causing the extension host to become completely unresponsive during sync operations.
+- **Dashboard Service Worker Error**: Resolved `Could not register service worker: InvalidStateError` that occurred when the dashboard webview's HTML was updated too quickly during initialization. Implemented a rendering delay to ensure secure resources (like the Skeleton Loader) can register properly in VS Code 1.95+.
+- **Performance Optimization**: Accelerated the loading of the Conversations list in the Sync Dashboard by deferring heavy `md5` hashing of `.pb` file contents.
+- **File List Visibility**: Fixed a bug where skipping the aforementioned file hashing optimizations incorrectly resulted in `0 B` file sizes and empty file lists within the dashboard.
+- **UI Responsiveness**:
+    - **Data Tables**: Enabled horizontal scrolling (`overflow-x: auto`) for large data tables (e.g., Connected Devices) to prevent layout breakage on smaller IDE window widths.
+    - **Quota Cards**: Switched the Quota Usage section to CSS Grid, allowing model cards to wrap responsively down to 240px instead of overflowing.
+    - **Preview Cleaning**: Removed the empty `Conversation Preview` container from the active conversation expansion to streamline the UI.
+
+---
+
 ## [0.13.0] - 2026-02-04
 ### Antigravity Proxy – Unified AI Gateway
 Introducing the **Antigravity Proxy**, a powerful local proxy server that unifies access to multiple AI providers (Antigravity, GitHub Copilot, Claude, Codex, Gemini, Z.AI, Kiro, Vertex, and more) through a single OpenAI-compatible endpoint.
@@ -130,6 +175,8 @@ Introducing the **Antigravity Proxy**, a powerful local proxy server that unifie
 - **Fix**: Restored English localization bundle that was accidentally overwritten.
 - **Coverage**: Added missing keys for Profile management and Telegram features across all supported languages.
 
+---
+
 ## [0.11.1] - 2026-01-31
 ### Bug Fixes
 - **Conversation Titles**: Fixed an issue where the "View Current Conversation" tab and Sync Dashboard displayed unreadable GUIDs. Now consistently prioritizes the **Server Title** > **Local Title** > **ID**, ensuring human-readable names are always shown.
@@ -142,6 +189,8 @@ Introducing the **Antigravity Proxy**, a powerful local proxy server that unifie
   - **Warning**: If you use the default storage location, all saved profiles will be deleted if the extension is uninstalled.
 - **Improved UX**: The profile switcher now clearly indicates which profile is active and provides a direct way to create, delete, or switch profiles via the QuickPick menu.
 - **Manual Restart**: updated the post-switch message to clearly inform users that a manual restart of the Antigravity process is required after window reload.
+
+---
 
 ## [0.10.3] - 2026-01-31
 ### MCP Panel
@@ -212,6 +261,7 @@ Introducing the **Antigravity Proxy**, a powerful local proxy server that unifie
 ### Bug Fixes
 - **Tool Rendering**: Resolved duplicate rendering of tool call summaries (like `task_boundary`) by handling them atomically.
 
+---
 
 ## [0.9.6] - 2026-01-27
 ### Sync & Dashboard
@@ -301,6 +351,8 @@ Introducing the **Antigravity Proxy**, a powerful local proxy server that unifie
 ### Bug Fixes
 - **Startup Crash**: Fixed a critical issue where the extension would fail to activate with a "password argument must be of type string" error if sync was not fully configured.
 
+---
+
 ## [0.8.1] - 2026-01-24
 ### Quota & Account Dashboard
 - **Visual Usage Graphs**: Added beautiful area charts to the Account Dashboard showing quota usage history for each model over time.
@@ -329,6 +381,8 @@ Introducing the **Antigravity Proxy**, a powerful local proxy server that unifie
 
 ### Optimization
 - **Build Size**: Reduced extension package size by optimizing `esbuild.js` (minification, map exclusion) and refining `.vscodeignore` to exclude unnecessary development assets.
+
+---
 
 ## [0.7.13] - 2026-01-24
 ### Localization & UX
@@ -615,6 +669,8 @@ Introducing the **Antigravity Proxy**, a powerful local proxy server that unifie
 - **Tests**: Added unit tests for `LocalizationManager` (`formatDateTime`, `formatDate`, `getLocale`, `t`).
 - **Translations**: Added new strings to all 14 language bundles: `by`, `Created`, `Modified`, `ms`, `s`, status tooltips.
 
+---
+
 ## [0.6.0] - 2026-01-20
 - **Feature**: Parallel Sync! Uploads and downloads now run in parallel chains for significantly faster synchronization.
     - **Configurable**: Added `sync.concurrency` setting (default 3, max 10) to control parallelism.
@@ -631,6 +687,8 @@ Introducing the **Antigravity Proxy**, a powerful local proxy server that unifie
 - **Visuals**:
     - **Colored Icons**: Quota status now uses colored circles (🟢/🟡/🔴) for better visibility.
     - **Time Scale**: Visual progress bar for Pro/Ultra models showing time remaining in current cycle.
+
+---
 
 ## [0.5.0] - 2026-01-20
 - **UI/UX**: Major overhaul of Sync Statistics and Status Bar.
@@ -655,6 +713,8 @@ Introducing the **Antigravity Proxy**, a powerful local proxy server that unifie
     - Added detection for "Not found in Drive" errors.
     - Added suggestions dialog to automatically fix manifest inconsistencies.
 - **Configuration**: Added `sync.suggestSolutions` setting to enable/disable error suggestions.
+
+---
 
 ## [0.4.14] - 2026-01-20
 - **Feature**: Per-file differential sync! Only changed files are uploaded/downloaded instead of entire conversation archives.
@@ -723,6 +783,8 @@ Introducing the **Antigravity Proxy**, a powerful local proxy server that unifie
 - **Feature**: Added `Antigravity Storage: Backup All Conversations` command for one-click full backup.
 - **Dev**: Added automated testing infrastructure with Jest.
 
+---
+
 ## [0.3.6] - 2026-01-19
 - **Feature**: Added `Backup All Conversations` command for one-click local zip backup.
 - **Feature**: Added `Resolve Conflict Copies` command with UI to handle sync conflicts.
@@ -737,7 +799,6 @@ Introducing the **Antigravity Proxy**, a powerful local proxy server that unifie
 - **UI**: Display relative time (e.g., "2 hours ago") for conversation modifications.
 
 ## [0.3.3] - 2026-01-19
-
 ### Fixed
 - **Sync**: Resolved "Failed to get remote manifest" error by fixing encrypted manifest decryption logic.
 - **OAuth**: Fixed "Missing required parameter: client_id" error by dynamically reloading credentials.
@@ -745,14 +806,12 @@ Introducing the **Antigravity Proxy**, a powerful local proxy server that unifie
 - **Documentation**: Added direct link to Setup Guide in `README.md` and included missing screenshots.
 
 ## [0.3.2] - 2026-01-19
-
 ### Fixed
 - **OAuth Authorization**: Resolved "401 invalid_client" error by moving Google OAuth credentials to user-configurable settings.
 - **Documentation**: Enhanced `SYNC_SETUP.md` with step-by-step screenshots for Google Cloud Console configuration.
 - **README**: Restored and updated screenshots for features.
 
 ## [0.3.0] - 2026-01-19
-
 ### Added
 - **Google Drive Synchronization**: Sync your conversation history across multiple devices securely.
 - **End-to-End Encryption**: All synced data is encrypted using AES-256-GCM.
@@ -771,8 +830,9 @@ Introducing the **Antigravity Proxy**, a powerful local proxy server that unifie
 - Renamed all command categories from `Antigravity` to `Antigravity Storage` for better organization in the Command Palette.
 - Updated `README.md` with sync features and usage instructions.
 
-## [0.2.3] - 2026-01-18
+---
 
+## [0.2.3] - 2026-01-18
 ### Added
 - Initial release of Antigravity Storage Manager.
 - Export conversations to ZIP.

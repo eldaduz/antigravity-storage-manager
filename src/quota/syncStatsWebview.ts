@@ -39,6 +39,7 @@ export interface SyncStatsData {
     activeConversationId?: string;
     // MCP Servers data
     mcpServerStates?: McpServerStateData[];
+    isSyncEnabled?: boolean;
 }
 
 export interface McpServerStateData {
@@ -74,6 +75,11 @@ export class SyncStatsWebview {
                 console.error('Failed to initialize MarkdownIt in SyncStatsWebview:', e);
             }
         }
+    }
+
+    public static renderMarkdown(text: string): string {
+        SyncStatsWebview.initializeMd();
+        return SyncStatsWebview.md.render(text);
     }
 
     public static isUserSearching(): boolean {
@@ -153,7 +159,8 @@ export class SyncStatsWebview {
             column || vscode.ViewColumn.One,
             {
                 enableScripts: true,
-                retainContextWhenHidden: true
+                retainContextWhenHidden: true,
+                localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'media')]
             }
         );
 
@@ -205,6 +212,12 @@ export class SyncStatsWebview {
         return !!SyncStatsWebview.currentPanel;
     }
 
+    public static postMessage(message: any): void {
+        if (SyncStatsWebview.currentPanel) {
+            SyncStatsWebview.currentPanel.webview.postMessage(message);
+        }
+    }
+
     private static getSkeletonHtml(): string {
         const lm = LocalizationManager.getInstance();
         const cspSource = SyncStatsWebview.currentPanel?.webview.cspSource || '';
@@ -213,7 +226,7 @@ export class SyncStatsWebview {
         <html lang="en">
         <head>
             <meta charset="UTF-8">
-            <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${cspSource} 'unsafe-inline'; script-src 'unsafe-inline' ${cspSource}; font-src ${cspSource}; img-src ${cspSource} data:;">
+            <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${cspSource} 'unsafe-inline'; script-src 'unsafe-inline' ${cspSource}; font-src ${cspSource}; img-src ${cspSource} data: vscode-webview-resource:;">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <style>
                 :root {
@@ -255,7 +268,7 @@ export class SyncStatsWebview {
                     padding: 24px;
                     margin-bottom: 40px;
                 }
-                .data-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 40px; padding: 16px; }
+                .data-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow-x: auto; overflow-y: hidden; margin-bottom: 40px; padding: 16px; }
                 .skeleton-row { display: flex; gap: 24px; margin-bottom: 16px; }
                 .section-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; opacity: 0.9; }
             </style>
@@ -424,7 +437,7 @@ export class SyncStatsWebview {
         <html lang="en">
         <head>
             <meta charset="UTF-8">
-            <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${cspSource} 'unsafe-inline'; script-src 'unsafe-inline' ${cspSource}; font-src ${cspSource}; img-src ${cspSource} data:;">
+            <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${cspSource} 'unsafe-inline'; script-src 'unsafe-inline' ${cspSource}; font-src ${cspSource}; img-src ${cspSource} data: vscode-webview-resource:;">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
             <style>
@@ -526,7 +539,7 @@ export class SyncStatsWebview {
                 /* Tables & Lists */
                 .section-title { font-size: 18px; font-weight: 600; margin: 40px 0 20px 0; color: var(--fg); opacity: 0.9; }
 
-                .data-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 40px; }
+                .data-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow-x: auto; overflow-y: hidden; margin-bottom: 40px; }
                 
                 table { width: 100%; border-collapse: collapse; text-align: left; }
                 th { padding: 16px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.6; border-bottom: 1px solid var(--border); font-weight: 600; }
@@ -745,6 +758,50 @@ export class SyncStatsWebview {
                     font-family: monospace;
                     pointer-events: none;
                 }
+
+                /* Toggle Switch */
+                .toggle-switch {
+                    position: relative;
+                    display: inline-block;
+                    width: 32px;
+                    height: 18px;
+                    margin-right: 8px;
+                    vertical-align: middle;
+                }
+                .toggle-switch input { 
+                    opacity: 0;
+                    width: 0;
+                    height: 0;
+                }
+                .slider {
+                    position: absolute;
+                    cursor: pointer;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background-color: rgba(255,255,255,0.2);
+                    transition: .2s;
+                    border-radius: 18px;
+                }
+                .slider:before {
+                    position: absolute;
+                    content: "";
+                    height: 14px;
+                    width: 14px;
+                    left: 2px;
+                    bottom: 2px;
+                    background-color: var(--fg);
+                    transition: .2s;
+                    border-radius: 50%;
+                }
+                input:checked + .slider {
+                    background-color: var(--success);
+                }
+                input:checked + .slider:before {
+                    transform: translateX(14px);
+                    background-color: #fff;
+                }
             </style>
         </head>
         <body>
@@ -768,6 +825,13 @@ export class SyncStatsWebview {
                         ` : ''}
                     </div>
                     <div class="header-actions">
+                        <div style="display: flex; align-items: center; margin-right: 12px;" title="${lm.t('Enable/Disable Auto-Sync')}">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="syncToggle" ${data.isSyncEnabled !== false ? 'checked' : ''} onchange="toggleSync(this.checked)">
+                                <span class="slider"></span>
+                            </label>
+                            <span style="font-size: 11px; opacity: 0.7; font-weight: 600;">${lm.t('Auto-Sync')}</span>
+                        </div>
 
                         <button class="btn" onclick="postCommand('openPatreon')" title="${lm.t('Support on Patreon')}" style="padding: 8px 12px; min-width: 40px; justify-content: center;">🧡</button>
                         <button class="btn" onclick="postCommand('openCoffee')" title="${lm.t('Buy Me a Coffee')}" style="padding: 8px 12px; min-width: 40px; justify-content: center;">☕</button>
@@ -964,7 +1028,7 @@ export class SyncStatsWebview {
                             <div style="font-size: 32px; margin-bottom: 8px;">🔌</div>
                             <div>${lm.t('No MCP servers configured')}</div>
                             <div style="font-size: 11px; margin-top: 8px; opacity: 0.7;">
-                                ${lm.t('MCP servers can be configured in ~/.gemini/antigravity/mcp/mcp_config.json')}
+                                ${lm.t('MCP servers can be configured in ~/.gemini/antigravity/mcp_config.json')}
                             </div>
                         </div>
                     </div>
@@ -1042,7 +1106,7 @@ export class SyncStatsWebview {
                                                  ${snapshot.userEmail || snapshot.planName ? `<div style="font-size: 11px; opacity: 0.6;">${snapshot.userEmail ? `${lm.t('User')}: ${snapshot.userEmail}` : ''}${snapshot.userEmail && snapshot.planName ? ' • ' : ''}${snapshot.planName ? `${lm.t('Plan')}: ${snapshot.planName}` : ''}</div>` : ''}
                                             </div>
                                             
-                                            <div style="display: flex; flex-direction: row; gap: 24px; width: 100%; overflow-x: visible;">
+                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; width: 100%;">
                                                 ${(() => {
                                         const pinned = vscode.workspace.getConfiguration('antigravity-storage-manager').get<string[]>('quota.pinnedModels') || [];
 
@@ -1226,7 +1290,7 @@ export class SyncStatsWebview {
                                                     </div>
                                                 </div>
 
-                                                ${resetTimeStr ? `<div class="reset-info">${lm.t('Resets')} ${resetTimeStr}</div>` : ''}
+                                                ${resetTimeStr ? `<div class="reset-info">${lm.t('Reset at {0}', resetTimeStr)}</div>` : ''}
 
                                                 ${cycleHtml}
                                             </div>`;
@@ -1473,6 +1537,10 @@ export class SyncStatsWebview {
                     vscode.postMessage({ command, ...data });
                 }
 
+                function toggleSync(enabled) {
+                    postCommand('toggleSync', { enabled });
+                }
+
                 function performSearch() {
                     const input = document.getElementById('pbSearchInput');
                     if (input && input.value.trim()) {
@@ -1569,10 +1637,34 @@ export class SyncStatsWebview {
 
 
                 
+                // Message listener
+                window.addEventListener('message', event => {
+                    const message = event.data;
+                    switch (message.command) {
+                        case 'conversationDetails':
+                            const el = document.getElementById('preview-' + message.id);
+                            if (el) {
+                                el.innerHTML = message.html;
+                                el.dataset.loaded = 'true';
+                            }
+                            break;
+                    }
+                });
+
                 function toggleFiles(id) {
                     const el = document.getElementById('files-' + id);
                     if (el) {
-                        el.style.display = el.style.display === 'table-row' ? 'none' : 'table-row';
+                        const isHidden = el.style.display === 'none' || el.style.display === '';
+                        el.style.display = isHidden ? 'table-row' : 'none';
+                        
+                        if (isHidden) {
+                             // Check if content is loaded
+                             const contentDiv = document.getElementById('preview-' + id);
+                             if (contentDiv && contentDiv.dataset.loaded === 'false') {
+                                 contentDiv.innerHTML = '<div style="display:flex; align-items:center; gap:8px;"><span>Loading preview...</span><div class="skeleton" style="width:20px; height:20px; border-radius:50%"></div></div>';
+                                 postCommand('getConversationDetails', { id: id });
+                             }
+                        }
                     }
                 }
                 
@@ -1594,8 +1686,7 @@ export class SyncStatsWebview {
                     // Reset
                     if (reset) {
                         content += '<div style="font-size:11px; display:flex; justify-content:space-between; gap:12px; margin-bottom:2px;">' +
-                                   '<span style="opacity:0.7">${lm.t('Resets')}</span>' +
-                                   '<span>' + reset + '</span>' +
+                                   '<span style="opacity:0.7">' + lm.t('Reset at {0}', reset) + '</span>' +
                                    '</div>';
                     }
                     

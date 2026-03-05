@@ -36,7 +36,7 @@ export class PbParser {
     private static parseBuffer(buffer: Buffer, depth: number = 0): string[] {
         const strings: string[] = [];
         // Safety limit for recursion
-        if (depth > 10) return strings;
+        if (depth > 20) return strings;
 
         const reader = protobuf.Reader.create(buffer);
 
@@ -45,7 +45,6 @@ export class PbParser {
                 const tag = reader.uint32();
                 const wireType = tag & 7;
                 const fieldNumber = tag >>> 3;
-                if (depth === 0) console.log(`[Depth 0] Field ${fieldNumber} WireType ${wireType} Pos ${reader.pos}`);
 
                 if (wireType === 2) { // Length-delimited
                     const len = reader.uint32();
@@ -74,7 +73,8 @@ export class PbParser {
                         // A simple check: if it has many null bytes or weird control chars, likely binary.
                         // For now, let's just keep it if it's > 2 chars and doesn't look like trash.
                         // eslint-disable-next-line no-control-regex
-                        if (str.length > 2 && !/[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(str)) {
+                        if (str.length > 1 && !/[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(str)) {
+                            // console.log(`[PbParser] Found string at depth ${depth}: ${str.substring(0, 50)}...`);
                             strings.push(str);
                             // foundLoginString = true; // unused
                         }
