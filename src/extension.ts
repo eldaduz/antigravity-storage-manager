@@ -603,15 +603,20 @@ export async function activate(context: vscode.ExtensionContext) {
     exportButton.text = `$(export) ${lm.t('AG Export')}`;
     exportButton.tooltip = lm.t("Export Antigravity Conversations (via .zip file)");
     exportButton.command = `${EXT_NAME}.export`;
-    exportButton.show();
     context.subscriptions.push(exportButton);
 
     const importButton = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 99);
     importButton.text = `$(cloud-download) ${lm.t('AG Import')}`;
     importButton.tooltip = lm.t("Import Antigravity Conversations (via .zip file)");
     importButton.command = `${EXT_NAME}.import`;
-    importButton.show();
     context.subscriptions.push(importButton);
+
+    const config = vscode.workspace.getConfiguration(EXT_NAME);
+    const showExportImport = config.get<boolean>('ui.showExportImportStatusBarItems', true);
+    if (showExportImport) {
+        exportButton.show();
+        importButton.show();
+    }
 
     // Prompt for reload on language change
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {
@@ -625,6 +630,18 @@ export async function activate(context: vscode.ExtensionContext) {
                     vscode.commands.executeCommand('workbench.action.reloadWindow');
                 }
             });
+        }
+
+        if (e.affectsConfiguration(`${EXT_NAME}.ui.showExportImportStatusBarItems`)) {
+            const currentConfig = vscode.workspace.getConfiguration(EXT_NAME);
+            const showItems = currentConfig.get<boolean>('ui.showExportImportStatusBarItems', true);
+            if (showItems) {
+                exportButton.show();
+                importButton.show();
+            } else {
+                exportButton.hide();
+                importButton.hide();
+            }
         }
     }));
 

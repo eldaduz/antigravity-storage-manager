@@ -71,5 +71,6 @@
     "antigravity.model.gptOss120b": "GPT-OSS 120B (Medium)",
     "antigravity.model.gemini3ProHigh": "Gemini 3 Pro (High)",
     "antigravity.model.gemini3ProLow": "Gemini 3 Pro (Low)",
-    "antigravity.model.gemini3Flash": "Gemini 3 Flash"
+    "antigravity.model.gemini3Flash": "Gemini 3 Flash",
+    "antigravity.config.ui.showExportImportStatusBarItems": "Hiển thị các nút 'AG Export' và 'AG Import' trên thanh trạng thái"
 }

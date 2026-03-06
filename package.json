@@ -429,6 +429,11 @@
                     "default": 10,
                     "description": "%antigravity.config.backupRetention%"
                 },
+                "antigravity-storage-manager.ui.showExportImportStatusBarItems": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "%antigravity.config.ui.showExportImportStatusBarItems%"
+                },
                 "antigravity-storage-manager.enableQuota": {
                     "type": "boolean",
                     "default": true,
