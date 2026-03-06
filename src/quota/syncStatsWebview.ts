@@ -1079,8 +1079,10 @@ export class SyncStatsWebview {
 
                             // Sort: Current machine first, then by last sync (newest first)
                             machinesWithQuota.sort((a, b) => {
-                                if (a.isCurrent) return -1;
-                                if (b.isCurrent) return 1;
+                                const aMain = a.isCurrent && !a.isVirtualProfile;
+                                const bMain = b.isCurrent && !b.isVirtualProfile;
+                                if (aMain && !bMain) return -1;
+                                if (!aMain && bMain) return 1;
                                 return new Date(b.lastSync).getTime() - new Date(a.lastSync).getTime();
                             });
 
@@ -1100,15 +1102,23 @@ export class SyncStatsWebview {
                                     }
                                 }
 
+                                const mainAccount = m.isCurrent && !m.isVirtualProfile;
+                                const contentId = `quota-content-${m.id.replace(/[^a-zA-Z0-9]/g, '-')}`;
+                                const displayStyle = mainAccount ? 'grid' : 'none';
+                                const chevron = mainAccount ? '▼' : '▶';
+
                                 return `
                                     <tr class="quota-row ${groupId}" style="background: rgba(0,0,0,0.2);">
                                         <td colspan="5" style="padding: 20px 24px;">
-                                            <div style="display:flex; justify-content: space-between; align-items:flex-end; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px;">
-                                                 <div style="font-size: 11px; font-weight: 700; opacity: 0.7; text-transform:uppercase; letter-spacing:1px;">${quotaSourceLabel}</div>
+                                            <div onclick="const content = document.getElementById('${contentId}'); const icon = this.querySelector('.quota-chevron'); if (content.style.display === 'none') { content.style.display = 'grid'; icon.textContent = '▼'; } else { content.style.display = 'none'; icon.textContent = '▶'; }" style="display:flex; justify-content: space-between; align-items:flex-end; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; cursor: pointer;">
+                                                 <div style="font-size: 11px; font-weight: 700; opacity: 0.7; text-transform:uppercase; letter-spacing:1px; display: flex; align-items: center;">
+                                                    <span class="quota-chevron" style="margin-right: 8px; display: inline-block; width: 12px;">${chevron}</span>
+                                                    ${quotaSourceLabel}
+                                                 </div>
                                                  ${snapshot.userEmail || snapshot.planName ? `<div style="font-size: 11px; opacity: 0.6;">${snapshot.userEmail ? `${lm.t('User')}: ${snapshot.userEmail}` : ''}${snapshot.userEmail && snapshot.planName ? ' • ' : ''}${snapshot.planName ? `${lm.t('Plan')}: ${snapshot.planName}` : ''}</div>` : ''}
                                             </div>
                                             
-                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; width: 100%;">
+                                            <div id="${contentId}" style="display: ${displayStyle}; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; width: 100%;">
                                                 ${(() => {
                                         const pinned = vscode.workspace.getConfiguration('antigravity-storage-manager').get<string[]>('quota.pinnedModels') || [];
 
@@ -1124,8 +1134,8 @@ export class SyncStatsWebview {
                                         const processed = new Set<string>();
 
                                         const definitions = [
-                                            { name: 'Gemini 3 Pro', match: (l: string) => l.includes('Gemini 3 Pro') },
-                                            { name: 'Gemini 3 Flash', match: (l: string) => l.includes('Gemini 3 Flash') },
+                                            { name: 'Gemini 3.1 Pro', match: (l: string) => l.includes('Gemini 3.1 Pro') },
+                                            { name: 'Gemini 3.1 Flash', match: (l: string) => l.includes('Gemini 3.1 Flash') },
                                             { name: 'Claude & GPT-OSS', match: (l: string) => l.includes('Claude') || l.includes('GPT-OSS') }
                                         ];
 
@@ -1263,7 +1273,7 @@ export class SyncStatsWebview {
                                             }
 
                                             const groupLabel = isGroup ? g.name : cleanLabel(primary.label);
-                                            function cleanLabel(l: string) { return l.replace('Gemini 1.5 ', '').replace('Gemini 3 Pro (Thinking)', 'Pro (High)').replace('Gemini 3 Pro', 'Pro (Medium)').replace('Gemini 3 Flash', 'Flash').replace('Claude 3.5 Sonnet (Thinking)', 'Claude Sonnet 4.5 (Thinking)').replace('Claude 3.5 Sonnet', 'Claude Sonnet 4.5').replace('Claude 3.5 Opus (Thinking)', 'Claude Opus 4.5 (Thinking)').replace('Claude 3.5 Opus', 'Claude Opus 4.5').replace('Claude 3 ', '').replace('GPT-OSS 120B', 'GPT-OSS 120B (Medium)'); }
+                                            function cleanLabel(l: string) { return l.replace('Gemini 1.5 ', '').replace('Gemini 3.1 Pro (Thinking)', 'Pro (High)').replace('Gemini 3.1 Pro', 'Pro (Medium)').replace('Gemini 3.1 Flash', 'Flash').replace('Claude 3.5 Sonnet (Thinking)', 'Claude Sonnet 4.5 (Thinking)').replace('Claude 3.5 Sonnet', 'Claude Sonnet 4.5').replace('Claude 3.5 Opus (Thinking)', 'Claude Opus 4.5 (Thinking)').replace('Claude 3.5 Opus', 'Claude Opus 4.5').replace('Claude 3 ', '').replace('GPT-OSS 120B', 'GPT-OSS 120B (Medium)'); }
 
                                             return `<div style="display: flex; flex-direction: column; flex: 1; min-width: 0; background: rgba(255,255,255,0.03); padding: 24px; border-radius: 16px; box-sizing: border-box; min-height: 240px; border: 1px solid rgba(255,255,255,0.02);">
                                                 

@@ -28,6 +28,7 @@ const mockStatusBarItem = {
 const mockOutputChannel = {
     append: jest.fn(),
     appendLine: jest.fn(),
+    show: jest.fn(),
     dispose: jest.fn()
 };
 
@@ -49,7 +50,15 @@ jest.mock('vscode', () => ({
         getConfiguration: mockGetConfiguration
     },
     StatusBarAlignment: { Right: 1 },
-    ThemeColor: jest.fn()
+    ThemeColor: jest.fn(),
+    EventEmitter: class {
+        event = jest.fn();
+        fire = jest.fn();
+        dispose = jest.fn();
+    },
+    commands: {
+        registerCommand: jest.fn()
+    }
 }), { virtual: true });
 
 // Import class under test AFTER mocking vscode
@@ -102,7 +111,9 @@ describe('ProxyManager Tests', () => {
             const process = new EventEmitter();
             (process as any).stdout = new EventEmitter();
             (process as any).stderr = new EventEmitter();
-            (process as any).kill = jest.fn();
+            (process as any).kill = jest.fn(() => {
+                setTimeout(() => process.emit('exit', 0), 10);
+            });
             (process as any).killed = false;
             return process;
         });
@@ -166,7 +177,9 @@ describe('ProxyManager Tests', () => {
 
         assert.strictEqual(proxyManager.status, ProxyStatus.Running);
 
-        await proxyManager.stop();
+        const stopPromise = proxyManager.stop();
+        jest.advanceTimersByTime(3500);
+        await stopPromise;
         assert.strictEqual(proxyManager.status, ProxyStatus.Stopped);
     });
 });

@@ -17,9 +17,9 @@ export function drawProgressBar(percentage: number, length: number = 10): string
  * Mapping of full model labels to short abbreviations.
  */
 const MODEL_ABBREVIATIONS: Record<string, string> = {
-    'Gemini 3 Pro (High)': 'Gemini 3 Pro (H)',
-    'Gemini 3 Pro (Low)': 'Gemini 3 Pro (L)',
-    'Gemini 3 Flash': 'Gemini 3 Flash',
+    'Gemini 3.1 Pro (High)': 'Gemini 3.1 Pro (H)',
+    'Gemini 3.1 Pro (Low)': 'Gemini 3.1 Pro (L)',
+    'Gemini 3.1 Flash': 'Gemini 3.1 Flash',
     'Claude Sonnet 4.5': 'Claude S4.5',
     'Claude Sonnet 4.5 (Thinking)': 'Claude S4.5T',
     'Claude Opus 4.5 (Thinking)': 'Claude O4.5T',
@@ -111,8 +111,8 @@ export function compareModels(a: { remainingPercentage?: number, resetTime: Date
  * Estimates the total cycle duration based on the model label.
  */
 export function getCycleDuration(label: string): number {
-    // Gemini 3 Pro, Opus, and Thinking seem to have a 5h cycle
-    if (label.includes('Gemini 3 Pro') || label.includes('Opus') || label.includes('Thinking')) {
+    // Gemini 3.1 Pro, Opus, and Thinking seem to have a 5h cycle
+    if (label.includes('Gemini 3.1 Pro') || label.includes('Opus') || label.includes('Thinking')) {
         return 5 * 60 * 60 * 1000;
     }
 

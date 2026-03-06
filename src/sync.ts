@@ -6642,10 +6642,10 @@ export class SyncManager {
 
         // Model Mapping Table (should be synced with package.json or config if possible, but hardcoded here for UI consistency)
         const modelMap: { [key: string]: string } = {
-            'M10': 'Gemini 3 Ultra',
-            'M11': 'Gemini 3 Flash',
-            'M12': 'Gemini 3 Pro (High)',
-            'M18': 'Gemini 3 Pro',
+            'M10': 'Gemini 3.1 Ultra',
+            'M11': 'Gemini 3.1 Flash',
+            'M12': 'Gemini 3.1 Pro (High)',
+            'M18': 'Gemini 3.1 Pro',
             'M19': 'Gemini 2.0 Flash',
             'M20': 'Claude 3.5 Haiku',
             'M21': 'Claude 3.7 Sonnet',

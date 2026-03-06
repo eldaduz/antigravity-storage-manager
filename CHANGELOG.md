@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.14.1] - 2026-03-06
 ### Improvements
 - **Multiprofile Quota Display**: The "Devices & Active Sessions" section now intelligently displays combined quota usage for all accounts linked to the active profiles on that specific device, providing a complete picture of available resources.
+- **Collapsible Quotas**: Added ability to collapse quota details for other profiles, keeping only the current account expanded by default for better readability.
+- **Model Version Updates**: Updated model references from Gemini 3/Flash to Gemini 3.1 Pro/Flash across the application to reflect the latest model versions.
 
 ## [0.14.0] - 2026-03-06
 ### Sync Safety & Pre-Sync Backups

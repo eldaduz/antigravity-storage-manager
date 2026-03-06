@@ -347,14 +347,14 @@ export class QuotaManager {
 
                 const groups = [
                     { name: 'Claude & GPT-OSS', models: [] as any[] },
-                    { name: 'Gemini 3 Pro', models: [] as any[] },
-                    { name: 'Gemini 3 Flash', models: [] as any[] }
+                    { name: 'Gemini 3.1 Pro', models: [] as any[] },
+                    { name: 'Gemini 3.1 Flash', models: [] as any[] }
                 ];
 
                 for (const m of models) {
-                    if (m.label.includes('Gemini 3 Pro')) {
+                    if (m.label.includes('Gemini 3.1 Pro')) {
                         groups[1].models.push(m);
-                    } else if (m.label.includes('Gemini 3 Flash')) {
+                    } else if (m.label.includes('Gemini 3.1 Flash')) {
                         groups[2].models.push(m);
                     } else {
                         groups[0].models.push(m);

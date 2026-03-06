@@ -46,7 +46,7 @@ describe('QuotaService', () => {
                     cascadeModelConfigData: {
                         clientModelConfigs: [
                             {
-                                label: "Gemini 3 Pro",
+                                label: "Gemini 3.1 Pro",
                                 modelOrAlias: { model: "gemini-3-pro" },
                                 quotaInfo: {
                                     remainingFraction: 0.8,
@@ -62,7 +62,7 @@ describe('QuotaService', () => {
             expect(snapshot.models).toHaveLength(1);
 
             const model = snapshot.models[0];
-            expect(model.label).toBe("Gemini 3 Pro");
+            expect(model.label).toBe("Gemini 3.1 Pro");
             expect(model.modelId).toBe("gemini-3-pro");
             expect(model.remainingPercentage).toBe(80); // 0.8 * 100
             expect(model.isExhausted).toBe(false);
