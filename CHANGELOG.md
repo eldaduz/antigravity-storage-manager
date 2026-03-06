@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Collapsible Quotas**: Added ability to collapse quota details for other profiles, keeping only the current account expanded by default for better readability.
 - **Model Version Updates**: Updated model references from Gemini 3/Flash to Gemini 3.1 Pro/Flash across the application to reflect the latest model versions.
 - **Quota Cache Fix**: Fixed an issue where the displayed quota wouldn't update after switching accounts. The QuotaService is now re-initialized properly when the Antigravity language_server process changes.
+- **Model Updates**: Upgraded all references of Claude Sonnet 4.5 and Claude Opus 4.5 to their latest 4.6 versions across the extension and localizations.
+- **Configurable UI**: Added a new setting `antigravity-storage-manager.ui.showExportImportStatusBarItems` to allow users to hide the "AG Export" and "AG Import" buttons from the status bar for a cleaner workspace.
+- **Pinned Models Fix**: Completely overhauled the `pinnedModels` settings validation. The extension now allows cleanly saving custom model IDs without VS Code Settings UI throwing validation errors. Pinned models now always save and display human-readable labels instead of raw technical IDs (e.g., `Claude Opus 4.6 (Thinking) [M8]`).
 - **Test Suite Optimization**: Restricted Jest to use `--maxWorkers=2` to prevent tests from hanging indefinitely on resource-constrained development machines.
 
 ## [0.14.0] - 2026-03-06
