@@ -1090,7 +1090,9 @@ export class SyncStatsWebview {
 
                                 // Unique header info
                                 let quotaSourceLabel = lm.t('Quota Usage');
-                                if (machinesWithQuota.length > 1) {
+                                if (m.isVirtualProfile) {
+                                    quotaSourceLabel = `${lm.t('Profile Usage')} "${m.profileName}"`;
+                                } else if (machinesWithQuota.length > 1) {
                                     if (m.isCurrent) {
                                         quotaSourceLabel += ` (${lm.t('This Device')})`;
                                     } else {

@@ -3169,6 +3169,26 @@ export class SyncManager {
                     });
                 }
 
+                // Inject virtual profiles for Quota rendering on this device
+                const profileQuotas = await this.quotaManager?.getProfileQuotas() || [];
+                for (const pq of profileQuotas) {
+                    machines.push({
+                        name: currentMachineName,
+                        id: this.config!.machineId + '_' + pq.profileName,
+                        fileId: 'virtual_profile',
+                        lastSync: pq.snapshot.timestamp.toISOString(),
+                        isCurrent: true,
+                        isVirtualProfile: true,
+                        profileName: pq.profileName,
+                        syncCount: 0,
+                        uploadCount: 0,
+                        downloadCount: 0,
+                        quota: undefined,
+                        accountQuota: pq.snapshot,
+                        conversationStates: []
+                    });
+                }
+
                 // Merge machines from manifest (for shared session scenarios where one device overwrote the state file)
                 if (remoteManifest?.machines) {
                     for (const manifestMachine of remoteManifest.machines) {

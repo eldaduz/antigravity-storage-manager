@@ -221,6 +221,32 @@ export class QuotaManager {
         return this.usageTracker;
     }
 
+    public async getProfileQuotas(): Promise<{ profileName: string; email?: string; snapshot: QuotaSnapshot }[]> {
+        if (!this.profileManager) return [];
+        const profiles = await this.profileManager.loadProfiles();
+        const results: { profileName: string; email?: string; snapshot: QuotaSnapshot }[] = [];
+        const activeProfile = this.profileManager.activeProfile;
+
+        for (const p of profiles) {
+            // Skip the active profile since its current quota is typically fetched live
+            if (p.name === activeProfile) continue;
+
+            if (p.quotaCache && p.quotaCache.models && p.quotaCache.models.length > 0) {
+                results.push({
+                    profileName: p.name,
+                    email: p.antigravityEmail,
+                    snapshot: {
+                        timestamp: new Date(p.quotaCache.timestamp),
+                        models: p.quotaCache.models as any[],
+                        userEmail: p.antigravityEmail,
+                        planName: undefined
+                    }
+                });
+            }
+        }
+        return results;
+    }
+
     public async getQuota(): Promise<QuotaSnapshot> {
         // 1. Detect process and port
         const processInfo = await this.portDetector.detectProcessInfo();
