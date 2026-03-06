@@ -1752,6 +1752,13 @@ ${keyConfig}
                 for (const file of files) {
                     if (file.endsWith('.md')) {
                         const content = fs.readFileSync(path.join(workflowsDir, file), 'utf8');
+
+                        // For Proxy MCP Commands, we only want to expose specific proxy-related workflows.
+                        // We check if the workflow explicitly mentions interacting with the proxy MCP server
+                        if (!content.includes('mcp_antigravity-proxy') && !content.includes('mcp_antigravity_proxy')) {
+                            continue;
+                        }
+
                         const name = file.replace(/\.md$/, '');
                         let allowedModels: string[] = [];
 

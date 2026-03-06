@@ -5,6 +5,10 @@ All notable changes to the **Antigravity Storage Manager** extension will be doc
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.2] - 2026-03-06
+### Bug Fixes
+- **MCP Commands Filter**: Fixed the "MCP Commands" section in the Proxy Dashboard to correctly display custom user-created proxy workflows by checking file contents for proxy tool invocations instead of strictly hardcoding `ag-proxy.md`.
+
 ## [0.14.1] - 2026-03-06
 ### Improvements
 - **Multiprofile Quota Display**: The "Devices & Active Sessions" section now intelligently displays combined quota usage for all accounts linked to the active profiles on that specific device, providing a complete picture of available resources.
