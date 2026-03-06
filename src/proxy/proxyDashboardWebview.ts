@@ -2853,6 +2853,46 @@ return response.content;
         // Inject account details for quota testing
         const accountDetails = ${JSON.stringify(accountDetails ? Object.fromEntries(accountDetails) : {})};
 
+        function updateQuotaAccounts() {
+            const provider = document.getElementById('mcp-quota-provider').value;
+            const accountSelect = document.getElementById('mcp-quota-account');
+            if (!accountSelect) return;
+            accountSelect.innerHTML = '<option value="">${lm.t('Select Account...')}</option>';
+            
+            const accounts = accountDetails[provider] || [];
+            accounts.forEach(acc => {
+                const option = document.createElement('option');
+                option.value = acc.fileName;
+                option.textContent = acc.fileName;
+                accountSelect.appendChild(option);
+            });
+        }
+        window.updateQuotaAccounts = updateQuotaAccounts;
+
+        function testGetQuota() {
+            const provider = document.getElementById('mcp-quota-provider').value;
+            const fileName = document.getElementById('mcp-quota-account').value;
+            if (!fileName) {
+                // Show a brief in-UI error without throwing an exception or blocking
+                const btn = document.querySelector('button[onclick="testGetQuota()"]');
+                if (btn) {
+                    const origText = btn.innerHTML;
+                    btn.innerHTML = '${lm.t('Select Account...')}';
+                    btn.style.color = 'var(--vscode-errorForeground)';
+                    setTimeout(() => {
+                        btn.innerHTML = origText;
+                        btn.style.color = '';
+                    }, 2000);
+                }
+                return;
+            }
+            viewQuota(provider, fileName);
+        }
+        window.testGetQuota = testGetQuota;
+
+        // Initialize the first provider on load
+        setTimeout(updateQuotaAccounts, 100);
+
         // --- Helper to safely escape strings for HTML attribute injection ---
         function escapeHtml(unsafe) {
             return unsafe
@@ -3667,7 +3707,7 @@ return response.content;
                                         '<div class="quota-bar">' +
                                             '<div class="quota-bar-fill" style="width: ' + (q.isCodex ? barPercent : barPercent) + '%; background: linear-gradient(90deg, ' + barColor + ', ' + barColorEnd + ')"></div>' +
                                         '</div>' +
-                                        (resetDate ? '<div class="quota-item-date">' + escapeHtml(lm.t('Reset at {0}', resetDate)) + '</div>' : '') +
+                                        (resetDate ? '<div class="quota-item-date">' + escapeHtml(${JSON.stringify(lm.t('Reset at {0}', '{0}'))}.replace('{0}', resetDate)) + '</div>' : '') +
                                     '</div>';
                             }
                         }

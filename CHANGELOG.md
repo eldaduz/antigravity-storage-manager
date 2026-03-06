@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Pinned Models Fix**: Completely overhauled the `pinnedModels` settings validation. The extension now allows cleanly saving custom model IDs without VS Code Settings UI throwing validation errors. Pinned models now always save and display human-readable labels instead of raw technical IDs (e.g., `Claude Opus 4.6 (Thinking) [M8]`).
 - **Test Suite Optimization**: Restricted Jest to use `--maxWorkers=2` to prevent tests from hanging indefinitely on resource-constrained development machines.
 
+### Bug Fixes
+- **Test Quota Accounts**: Fixed an issue where the "Select Account..." dropdown in the Test Quota section of the Antigravity Proxy Dashboard remained empty, preventing users from testing quotas.
+- **Infinite Quota Loading**: Resolved a `ReferenceError` exception in the Dashboard Webview that caused the Quota display modal to hang indefinitely on "Loading..." when testing quotas.
+
 ## [0.14.0] - 2026-03-06
 ### Sync Safety & Pre-Sync Backups
 - **Critical Fix**: Resolved a bug where conversations could be overwritten by **older versions** from another device during sync pull operations.
