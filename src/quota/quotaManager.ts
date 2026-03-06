@@ -255,10 +255,8 @@ export class QuotaManager {
             throw new Error('Antigravity Language Server not found. Please ensure Antigravity extension is installed and running.');
         }
 
-        // 2. Initialize service if needed
-        if (!this.quotaService) {
-            this.quotaService = new QuotaService(processInfo.connectPort, processInfo.csrfToken, processInfo.extensionPort);
-        }
+        // 2. Initialize service with current port and token
+        this.quotaService = new QuotaService(processInfo.connectPort, processInfo.csrfToken, processInfo.extensionPort);
 
         // 3. Fetch quota
         return await this.quotaService.fetchQuota();
