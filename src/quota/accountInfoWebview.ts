@@ -261,8 +261,8 @@ export class AccountInfoWebview {
                     <div class="model-header">
                         <div style="display:flex; align-items:center; gap:8px;">
                              ${isPinned
-                    ? `<div class="pin-btn pinned" onclick="postCommand('togglePin', {modelId: '${model.modelId}'})" title="${l.t('Unpin')}">📌</div>`
-                    : `<div class="pin-btn unpinned" onclick="postCommand('togglePin', {modelId: '${model.modelId}'})" title="${l.t('Pin')}">📍</div>`
+                    ? `<div class="pin-btn pinned" onclick="postCommand('togglePin', {modelId: '${model.label}'})" title="${l.t('Unpin')}">📌</div>`
+                    : `<div class="pin-btn unpinned" onclick="postCommand('togglePin', {modelId: '${model.label}'})" title="${l.t('Pin')}">📍</div>`
                 }
                              <span class="model-title">${statusIcon} ${model.label}</span>
                         </div>
