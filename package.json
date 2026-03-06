@@ -448,9 +448,26 @@
                             "Claude Sonnet 4.6 (Thinking)",
                             "Claude Opus 4.6 (Thinking)",
                             "GPT-OSS 120B (Medium)",
+                            "Gemini 3.1 Pro (High)",
+                            "Gemini 3.1 Pro (Low)",
+                            "Gemini 3.1 Flash",
                             "Gemini 3 Pro (High)",
                             "Gemini 3 Pro (Low)",
-                            "Gemini 3 Flash"
+                            "Gemini 3 Flash",
+                            "MODEL_PLACEHOLDER_M8"
+                        ],
+                        "enumItemLabels": [
+                            "Claude Sonnet 4.6",
+                            "Claude Sonnet 4.6 (Thinking)",
+                            "Claude Opus 4.6 (Thinking)",
+                            "GPT-OSS 120B (Medium)",
+                            "Gemini 3.1 Pro (High)",
+                            "Gemini 3.1 Pro (Low)",
+                            "Gemini 3.1 Flash",
+                            "Gemini 3 Pro (High)",
+                            "Gemini 3 Pro (Low)",
+                            "Gemini 3 Flash",
+                            "Claude Opus 4.6 (Thinking) [M8]"
                         ],
                         "enumDescriptions": [
                             "%antigravity.model.claudeSonnet46%",
@@ -459,7 +476,11 @@
                             "%antigravity.model.gptOss120b%",
                             "%antigravity.model.gemini3ProHigh%",
                             "%antigravity.model.gemini3ProLow%",
-                            "%antigravity.model.gemini3Flash%"
+                            "%antigravity.model.gemini3Flash%",
+                            "%antigravity.model.gemini3ProHigh%",
+                            "%antigravity.model.gemini3ProLow%",
+                            "%antigravity.model.gemini3Flash%",
+                            "%antigravity.model.claudeOpus46Thinking%"
                         ]
                     },
                     "default": [],

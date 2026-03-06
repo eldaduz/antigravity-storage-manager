@@ -69,8 +69,8 @@
     "antigravity.model.claudeSonnet46Thinking": "Claude Sonnet 4.6 (Thinking)",
     "antigravity.model.claudeOpus46Thinking": "Claude Opus 4.6 (Thinking)",
     "antigravity.model.gptOss120b": "GPT-OSS 120B (Medium)",
-    "antigravity.model.gemini3ProHigh": "Gemini 3 Pro (High)",
-    "antigravity.model.gemini3ProLow": "Gemini 3 Pro (Low)",
-    "antigravity.model.gemini3Flash": "Gemini 3 Flash",
+    "antigravity.model.gemini3ProHigh": "Gemini 3.1 Pro (High)",
+    "antigravity.model.gemini3ProLow": "Gemini 3.1 Pro (Low)",
+    "antigravity.model.gemini3Flash": "Gemini 3.1 Flash",
     "antigravity.config.ui.showExportImportStatusBarItems": "Durum çubuğunda 'AG Export' ve 'AG Import' düğmelerini göster"
 }
