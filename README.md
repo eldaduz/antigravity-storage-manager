@@ -56,6 +56,8 @@ If you find this extension useful, consider supporting the development:
 - 📦 **Export/Import** — Backup conversations to ZIP archives individually or in bulk with conflict detection.
 - 🛑 **Cancellation Support** — Abort long-running operations (Sync, Export, Backup) safely at any time.
 - 🛠️ **Smart Configuration** — Auto-detects missing sync setup and prompts for configuration on startup.
+- 📱 **Multi-Profile Quota Display** — Intelligently combined quota usage for all accounts linked to active profiles on a specific device, with a scrollable and collapsible UI.
+- 📝 **Customizable Pinned Models** — Cleanly save custom model IDs with human-readable labels and advanced validation.
 
 ---
 
