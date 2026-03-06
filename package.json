@@ -444,18 +444,18 @@
                     "items": {
                         "type": "string",
                         "enum": [
-                            "Claude Sonnet 4.5",
-                            "Claude Sonnet 4.5 (Thinking)",
-                            "Claude Opus 4.5 (Thinking)",
+                            "Claude Sonnet 4.6",
+                            "Claude Sonnet 4.6 (Thinking)",
+                            "Claude Opus 4.6 (Thinking)",
                             "GPT-OSS 120B (Medium)",
                             "Gemini 3 Pro (High)",
                             "Gemini 3 Pro (Low)",
                             "Gemini 3 Flash"
                         ],
                         "enumDescriptions": [
-                            "%antigravity.model.claudeSonnet45%",
-                            "%antigravity.model.claudeSonnet45Thinking%",
-                            "%antigravity.model.claudeOpus45Thinking%",
+                            "%antigravity.model.claudeSonnet46%",
+                            "%antigravity.model.claudeSonnet46Thinking%",
+                            "%antigravity.model.claudeOpus46Thinking%",
                             "%antigravity.model.gptOss120b%",
                             "%antigravity.model.gemini3ProHigh%",
                             "%antigravity.model.gemini3ProLow%",

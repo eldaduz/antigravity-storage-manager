@@ -20,9 +20,9 @@ const MODEL_ABBREVIATIONS: Record<string, string> = {
     'Gemini 3.1 Pro (High)': 'Gemini 3.1 Pro (H)',
     'Gemini 3.1 Pro (Low)': 'Gemini 3.1 Pro (L)',
     'Gemini 3.1 Flash': 'Gemini 3.1 Flash',
-    'Claude Sonnet 4.5': 'Claude S4.5',
-    'Claude Sonnet 4.5 (Thinking)': 'Claude S4.5T',
-    'Claude Opus 4.5 (Thinking)': 'Claude O4.5T',
+    'Claude Sonnet 4.6': 'Claude S4.6',
+    'Claude Sonnet 4.6 (Thinking)': 'Claude S4.6T',
+    'Claude Opus 4.6 (Thinking)': 'Claude O4.6T',
     'GPT-OSS 120B (Medium)': 'GPT-OSS (M)',
 };
 

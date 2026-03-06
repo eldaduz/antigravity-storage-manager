@@ -1273,7 +1273,7 @@ export class SyncStatsWebview {
                                             }
 
                                             const groupLabel = isGroup ? g.name : cleanLabel(primary.label);
-                                            function cleanLabel(l: string) { return l.replace('Gemini 1.5 ', '').replace('Gemini 3.1 Pro (Thinking)', 'Pro (High)').replace('Gemini 3.1 Pro', 'Pro (Medium)').replace('Gemini 3.1 Flash', 'Flash').replace('Claude 3.5 Sonnet (Thinking)', 'Claude Sonnet 4.5 (Thinking)').replace('Claude 3.5 Sonnet', 'Claude Sonnet 4.5').replace('Claude 3.5 Opus (Thinking)', 'Claude Opus 4.5 (Thinking)').replace('Claude 3.5 Opus', 'Claude Opus 4.5').replace('Claude 3 ', '').replace('GPT-OSS 120B', 'GPT-OSS 120B (Medium)'); }
+                                            function cleanLabel(l: string) { return l.replace('Gemini 1.5 ', '').replace('Gemini 3.1 Pro (Thinking)', 'Pro (High)').replace('Gemini 3.1 Pro', 'Pro (Medium)').replace('Gemini 3.1 Flash', 'Flash').replace('Claude 3.5 Sonnet (Thinking)', 'Claude Sonnet 4.6 (Thinking)').replace('Claude 3.5 Sonnet', 'Claude Sonnet 4.6').replace('Claude 3.5 Opus (Thinking)', 'Claude Opus 4.6 (Thinking)').replace('Claude 3.5 Opus', 'Claude Opus 4.6').replace('Claude 3 ', '').replace('GPT-OSS 120B', 'GPT-OSS 120B (Medium)'); }
 
                                             return `<div style="display: flex; flex-direction: column; flex: 1; min-width: 0; background: rgba(255,255,255,0.03); padding: 24px; border-radius: 16px; box-sizing: border-box; min-height: 240px; border: 1px solid rgba(255,255,255,0.02);">
                                                 

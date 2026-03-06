@@ -29,7 +29,7 @@ describe('Quota Utilities', () => {
         test('returns correct abbreviations', () => {
             // Known abbreviations
             expect(getModelAbbreviation('Gemini 3.1 Pro (High)')).toBe('Gemini 3.1 Pro (H)');
-            expect(getModelAbbreviation('Claude Sonnet 4.5')).toBe('Claude S4.5');
+            expect(getModelAbbreviation('Claude Sonnet 4.6')).toBe('Claude S4.6');
 
             // Dynamic fallback
             expect(getModelAbbreviation('My Custom Model')).toBe('MCM');

@@ -118,7 +118,7 @@ Monitor your AI usage limits and remaining credits directly within VS Code.
 ### Features
 - **Real-time Synchronization**: The dashboard automatically refreshes data every minute, staying perfectly in sync with the status bar.
 - **Plan & Tier Analysis**: View your exact plan name and tier description directly from authenticated Google API data.
-- **Model Monitoring**: Pin specific models (e.g., Gemini 3 Pro, Claude Sonnet 4.5) to the status bar for quick access.
+- **Model Monitoring**: Pin specific models (e.g., Gemini 3 Pro, Claude Sonnet 4.6) to the status bar for quick access.
 - **Feature Availability**: Check which tools (Web Search, MCP, Browser) are enabled for your current subscription level.
 - **Visual Indicators**: Color-coded status dots (🟢/🟡/🟠/🔴) and high-resolution progress bars show usage at a glance.
 - **Cycle Tracking**: High-tier models show a visual time scale `[████░░]` indicating positions within their specific quota cycles.

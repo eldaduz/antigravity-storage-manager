@@ -6650,7 +6650,7 @@ export class SyncManager {
             'M20': 'Claude 3.5 Haiku',
             'M21': 'Claude 3.7 Sonnet',
             'M22': 'Claude 3.7 Sonnet (Thinking)',
-            'M8': 'Claude Opus 4.5 (Thinking)',
+            'M8': 'Claude Opus 4.6 (Thinking)',
             'M1': 'Claude 3.5 Sonnet',
             'M2': 'Claude 3.5 Haiku (Old)',
             'M5': 'Claude 3 Opus',
