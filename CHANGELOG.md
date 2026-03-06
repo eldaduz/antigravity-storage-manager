@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Improvements
 - **Multiprofile Quota Display**: The "Devices & Active Sessions" section now intelligently displays combined quota usage for all accounts linked to the active profiles on that specific device, providing a complete picture of available resources.
 - **Collapsible Quotas**: Added ability to collapse quota details for other profiles, keeping only the current account expanded by default for better readability.
+- **Quota Scrollbar**: Inactive profiles' quota usage blocks are now wrapped in a scrollable container with a maximum height of 480px. This prevents the dashboard from endlessly vertically expanding when multiple profiles or machines are linked, ensuring a cleaner UI.
 - **Model Version Updates**: Updated model references from Gemini 3/Flash to Gemini 3.1 Pro/Flash across the application to reflect the latest model versions.
 - **Quota Cache Fix**: Fixed an issue where the displayed quota wouldn't update after switching accounts. The QuotaService is now re-initialized properly when the Antigravity language_server process changes.
 - **Model Updates**: Upgraded all references of Claude Sonnet 4.5 and Claude Opus 4.5 to their latest 4.6 versions across the extension and localizations.

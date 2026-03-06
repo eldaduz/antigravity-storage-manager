@@ -1118,7 +1118,7 @@ export class SyncStatsWebview {
                                                  ${snapshot.userEmail || snapshot.planName ? `<div style="font-size: 11px; opacity: 0.6;">${snapshot.userEmail ? `${lm.t('User')}: ${snapshot.userEmail}` : ''}${snapshot.userEmail && snapshot.planName ? ' • ' : ''}${snapshot.planName ? `${lm.t('Plan')}: ${snapshot.planName}` : ''}</div>` : ''}
                                             </div>
                                             
-                                            <div id="${contentId}" style="display: ${displayStyle}; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; width: 100%;">
+                                            <div id="${contentId}" class="${mainAccount ? '' : 'profiles-scroll-container'}" style="display: ${displayStyle}; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; width: 100%;">
                                                 ${(() => {
                                         const pinned = vscode.workspace.getConfiguration('antigravity-storage-manager').get<string[]>('quota.pinnedModels') || [];
 
