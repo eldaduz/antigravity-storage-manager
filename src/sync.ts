@@ -2903,25 +2903,68 @@ export class SyncManager {
     }
 
     /**
-     * Get MCP server states from the API client
+     * Get MCP server states from the API client.
+     * Falls back to reading mcp_config.json if the API returns empty.
      */
     private async getMcpServerStates(): Promise<any[] | undefined> {
         try {
             const states = await this.apiClient.getMcpServerStates();
-            if (!states || states.length === 0) {
-                return []; // Return empty array to show "No MCP servers" section
+            if (states && states.length > 0) {
+                return states.map((s: any) => ({
+                    serverId: s.serverId || s.id || 'unknown',
+                    serverName: s.serverName || s.name || s.serverId || 'Unknown',
+                    status: s.status || s.state || 'UNKNOWN',
+                    tools: s.tools || [],
+                    resources: s.resources || [],
+                    lastError: s.lastError || s.error
+                }));
             }
-            return states.map((s: any) => ({
-                serverId: s.serverId || s.id || 'unknown',
-                serverName: s.serverName || s.name || s.serverId || 'Unknown',
-                status: s.status || s.state || 'UNKNOWN',
-                tools: s.tools || [],
-                resources: s.resources || [],
-                lastError: s.lastError || s.error
-            }));
+
+            // Fallback: read from mcp_config.json
+            return this.getMcpServerStatesFromConfig();
         } catch (e) {
-            console.error('Failed to get MCP server states', e);
-            return undefined; // undefined means API not available, won't show section
+            console.error('Failed to get MCP server states from API, trying config file', e);
+            // Fallback: try reading from config file even on API error
+            try {
+                return this.getMcpServerStatesFromConfig();
+            } catch {
+                return undefined; // undefined means not available, won't show section
+            }
+        }
+    }
+
+    /**
+     * Read MCP server states from mcp_config.json file
+     */
+    private getMcpServerStatesFromConfig(): any[] {
+        const configPath = path.join(STORAGE_ROOT, 'mcp_config.json');
+        if (!fs.existsSync(configPath)) {
+            return []; // Return empty array to show "No MCP servers" section
+        }
+
+        try {
+            const content = fs.readFileSync(configPath, 'utf-8');
+            const config = JSON.parse(content);
+            const servers = config.mcpServers || config.servers || {};
+            const result: any[] = [];
+
+            for (const [id, serverConfig] of Object.entries(servers)) {
+                const cfg = serverConfig as any;
+                const isDisabled = cfg.disabled === true;
+                result.push({
+                    serverId: id,
+                    serverName: id,
+                    status: isDisabled ? 'DISCONNECTED' : 'CONNECTED',
+                    tools: [],
+                    resources: [],
+                    lastError: isDisabled ? 'Disabled in config' : undefined
+                });
+            }
+
+            return result;
+        } catch (e) {
+            console.error('Failed to read mcp_config.json', e);
+            return [];
         }
     }
 
@@ -3226,14 +3269,42 @@ export class SyncManager {
                 const userInfo = await this.driveService?.getUserInfo().catch(() => null);
                 const quotaSnapshot = this.quotaManager?.getLatestSnapshot();
 
-                // Build usage history map for current device's models
+                // Build usage history maps and track profile quotas
+                const tracker = this.quotaManager?.getUsageTracker();
+
+                // Track main account
                 const usageHistory = new Map<string, { timestamp: number; usage: number }[]>();
-                if (this.quotaManager && quotaSnapshot?.models) {
-                    const tracker = this.quotaManager.getUsageTracker();
+                if (tracker && quotaSnapshot?.models) {
                     for (const model of quotaSnapshot.models) {
                         const history = tracker.getHistory(model.modelId);
                         if (history && history.length > 0) {
                             usageHistory.set(model.modelId, history);
+                        }
+                    }
+                }
+
+                // Track and collect history for virtual profiles
+                if (tracker) {
+                    const profileQuotas = await this.quotaManager?.getProfileQuotas() || [];
+                    for (const pq of profileQuotas) {
+                        // Track this profile's quota
+                        tracker.track(pq.snapshot, pq.profileName);
+                    }
+                }
+
+                // Attach usageHistory to each machine
+                for (const machine of machines) {
+                    if (tracker && machine.accountQuota?.models) {
+                        const prefix = machine.isVirtualProfile ? machine.profileName : undefined;
+                        const mHistory = new Map<string, { timestamp: number; usage: number }[]>();
+                        for (const model of machine.accountQuota.models) {
+                            const history = tracker.getHistory(model.modelId, prefix);
+                            if (history && history.length > 0) {
+                                mHistory.set(model.modelId, history);
+                            }
+                        }
+                        if (mHistory.size > 0) {
+                            machine.usageHistory = mHistory;
                         }
                     }
                 }
@@ -3682,6 +3753,24 @@ export class SyncManager {
                     this.refreshStatistics(true, false);
                 } catch (e: any) {
                     vscode.window.showErrorMessage(lm.t('Failed to refresh MCP servers: {0}', e.message));
+                }
+                break;
+            }
+            case 'switchProfile': {
+                if (message.profile) {
+                    try {
+                        const pm = this.quotaManager?.getProfileManager();
+                        if (pm) {
+                            await pm.switchProfile(message.profile);
+                            vscode.window.showInformationMessage(lm.t('Switched to profile "{0}".', message.profile));
+                            // Refresh to update quota data
+                            setTimeout(() => this.refreshStatistics(false, false), 500);
+                        } else {
+                            vscode.window.showWarningMessage(lm.t('Profile manager is not available.'));
+                        }
+                    } catch (e: any) {
+                        vscode.window.showErrorMessage(lm.t('Failed to switch profile: {0}', e.message));
+                    }
                 }
                 break;
             }
@@ -6640,36 +6729,29 @@ export class SyncManager {
     private getHumanReadableModelName(rawName: string): string {
         if (!rawName) return '';
 
-        // Model Mapping Table (should be synced with package.json or config if possible, but hardcoded here for UI consistency)
-        const modelMap: { [key: string]: string } = {
-            'M10': 'Gemini 3.1 Ultra',
-            'M11': 'Gemini 3.1 Flash',
-            'M12': 'Gemini 3.1 Pro (High)',
-            'M18': 'Gemini 3.1 Pro',
-            'M19': 'Gemini 2.0 Flash',
-            'M20': 'Claude 3.5 Haiku',
-            'M21': 'Claude 3.7 Sonnet',
-            'M22': 'Claude 3.7 Sonnet (Thinking)',
-            'M8': 'Claude Opus 4.6 (Thinking)',
-            'M1': 'Claude 3.5 Sonnet',
-            'M2': 'Claude 3.5 Haiku (Old)',
-            'M5': 'Claude 3 Opus',
-            'M6': 'GPT-4o',
-            'M7': 'GPT-4o Mini',
-            'M9': 'Gemini 1.5 Pro'
-        };
+        // Strip known prefixes from input (e.g. "MODEL_PLACEHOLDER_M37" → "M37")
+        const stripPrefix = (name: string) => name.replace(/^MODEL_PLACEHOLDER_|^PLACEHOLDER_|^MODEL_OPENAI_|^models\//, '');
+        const cleanName = stripPrefix(rawName);
 
-        // Check exact match or "clean" match
-        const cleanName = rawName.replace(/^MODEL_PLACEHOLDER_|^PLACEHOLDER_|^models\//, '');
+        // Dynamic lookup from quota snapshot
+        // M-codes like M37 are mapped to labels like "Gemini 3.1 Pro (High)" via GetUserStatus API.
+        // The snapshot modelId contains the full prefix (e.g. "MODEL_PLACEHOLDER_M37"),
+        // so we strip it for comparison.
+        if (this.quotaManager) {
+            const snapshot = this.quotaManager.getLatestSnapshot();
+            if (snapshot?.models) {
+                const cleanUpper = cleanName.toUpperCase();
+                const match = snapshot.models.find((m: any) => {
+                    const cleanModelId = stripPrefix(m.modelId || '');
+                    return cleanModelId.toUpperCase() === cleanUpper
+                        || (m.modelId || '').toUpperCase() === cleanUpper
+                        || (m.label || '').toUpperCase() === cleanUpper;
+                });
+                if (match?.label) return match.label;
+            }
+        }
 
-        // Sometimes the ID in the step comes as just "M12", sometimes "MODEL_PLACEHOLDER_M12"
-        // Try direct lookup
-        if (modelMap[cleanName]) return modelMap[cleanName];
-
-        // Try lookup with underscore replacement? (unlikely for short codes like M12)
-        // cleanName = cleanName.replace(/_/g, ' '); 
-
-        // Fallback: Just return cleaned name
+        // Fallback: clean up underscores for readability
         return cleanName.replace(/_/g, ' ').trim();
     }
 

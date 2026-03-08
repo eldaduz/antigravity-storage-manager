@@ -5,9 +5,23 @@ All notable changes to the **Antigravity Storage Manager** extension will be doc
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.14.2] - 2026-03-06
+## [0.14.2] - 2026-03-08
+### Improvements
+- **Human-Readable AI Model Names**: Chat messages now display full model names (e.g., "Gemini 3.1 Pro (High)") instead of raw M-codes (e.g., "M37"). Uses dynamic lookup from the Language Server's `GetUserStatus` API with correct prefix stripping for reliable matching.
+- **Session Grouping**: Virtual profiles are now excluded from the session rows in "Devices & Active Sessions" — they are already displayed in the quota section above. This eliminates duplicate entries and reduces visual clutter.
+- **Redundant Separators**: Removed extra horizontal borders between quota profiles in the scrollable container and between profile headers.
+- **Grouped Quota in Header**: Mini-quota indicators in profile headers are now grouped by model family (e.g., "Claude/GPT", "Gemini 3.1 Pro") instead of showing each model individually. Displays the minimum remaining percentage per group.
+- **Reset Time for Exhausted Quotas**: Models/groups with 0% remaining now show the localized reset time in parentheses (e.g., "Claude/GPT: 0% (Today 10:55 AM)").
+- **Usage History for All Profiles**: The usage history chart now displays for all profiles (including virtual/linked accounts), not just the current device's main account.
+
 ### Bug Fixes
+- **MCP Servers Panel**: Fixed the "MCP Servers" section in the Sync Statistics Dashboard always showing "No MCP servers configured" even when MCP servers were actively connected. Added fallback logic to read server entries from `~/.gemini/antigravity/mcp_config.json` when the Language Server API returns an empty response.
 - **MCP Commands Filter**: Fixed the "MCP Commands" section in the Proxy Dashboard to correctly display custom user-created proxy workflows by checking file contents for proxy tool invocations instead of strictly hardcoding `ag-proxy.md`.
+- **Model Name Mapping**: Fixed incorrect model name display caused by two issues: (1) static M-code mappings were stale — M-codes are reassigned by the server over time (e.g., M18 changed from "Gemini 3.1 Pro" to "Gemini 3 Flash"); (2) dynamic lookup failed to match because `MODEL_PLACEHOLDER_` prefix was not stripped from both the raw name and the snapshot's `modelId`.
+- **Session Count**: The session counter in device group headers no longer counts virtual profiles, showing only real session entries.
+- **Usage History Chart**: Fixed the history chart never rendering due to an undefined `isCurrentGroup` variable — replaced with the correct `isMainAccount` condition. Also fixed zero-usage bars displaying with incorrect minimum height.
+- **Usage History Tooltip**: Fixed empty tooltip on hover — the `#tooltip` DOM element was missing (never created), and the `showTooltip` function called `lm.t()` on the client side where `lm` (LocalizationManager) doesn't exist, causing a JS error.
+- **Profile Usage Tracking**: `QuotaUsageTracker` now supports per-profile history storage using `profilePrefix`, enabling usage tracking across virtual profiles.
 
 ## [0.14.1] - 2026-03-06
 ### Improvements
