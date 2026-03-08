@@ -71,6 +71,10 @@ export class QuotaManager {
         this.profileManager = profileManager;
     }
 
+    public getProfileManager(): ProfileManager | null {
+        return this.profileManager;
+    }
+
     private updateEnabledState() {
         this.isEnabled = vscode.workspace.getConfiguration('antigravity-storage-manager').get('enableQuota', true);
         if (this.isEnabled) {

@@ -75,20 +75,16 @@ export class QuotaUsageTracker {
         });
     }
 
-    public track(snapshot: QuotaSnapshot) {
+    public track(snapshot: QuotaSnapshot, profilePrefix?: string) {
         let changed = false;
         const now = Date.now();
         const minInterval = 10 * 60 * 1000; // 10 minutes interval to save space
 
         snapshot.models.forEach(model => {
             if (model.remainingPercentage !== undefined) {
-                const points = this.history.get(model.modelId) || [];
+                const storageKey = profilePrefix ? `${profilePrefix}:${model.modelId}` : model.modelId;
+                const points = this.history.get(storageKey) || [];
                 const lastPoint = points.length > 0 ? points[points.length - 1] : null;
-
-                // Add point if:
-                // 1. No points
-                // 2. Value changed significantly (> 0.1%)
-                // 3. Time elapsed > minInterval
 
                 const currentUsage = 100 - model.remainingPercentage;
 
@@ -104,22 +100,19 @@ export class QuotaUsageTracker {
                     }
 
                     // Detect Reset
-                    // If current usage is significantly less than last usage (e.g. dropped from > 80% to < 10% or just strictly < previous)
-                    // Robust check: dropped by at least 10% and is now low (< 20%) OR just simply dropped if it was exhausted.
-                    // Let's use a simple heuristic: if usage dropped by > 50% OR (was > 90% and now < 50%)
                     if (this.telegramService.isConfigured()) {
+                        const label = profilePrefix ? `${model.label} (${profilePrefix})` : model.label;
                         if (lastPoint.usage > 50 && currentUsage < 10) {
-                            this.telegramService.sendBroadcast(`✅ Quota Reset Detected for *${model.label}*\n\nPrevious Usage: ${lastPoint.usage.toFixed(1)}%\nCurrent Usage: ${currentUsage.toFixed(1)}%`);
+                            this.telegramService.sendBroadcast(`✅ Quota Reset Detected for *${label}*\n\nPrevious Usage: ${lastPoint.usage.toFixed(1)}%\nCurrent Usage: ${currentUsage.toFixed(1)}%`);
                         } else if (model.remainingPercentage !== undefined && lastPoint.usage > 99 && currentUsage < 99) {
-                            // Was exhausted, now not
-                            this.telegramService.sendBroadcast(`✅ Quota Restored for *${model.label}*`);
+                            this.telegramService.sendBroadcast(`✅ Quota Restored for *${label}*`);
                         }
                     }
                 }
 
                 if (shouldAdd) {
                     points.push({ timestamp: now, usage: currentUsage });
-                    this.history.set(model.modelId, points);
+                    this.history.set(storageKey, points);
                     changed = true;
                 }
             }
@@ -131,8 +124,22 @@ export class QuotaUsageTracker {
         }
     }
 
-    public getHistory(modelId: string): UsagePoint[] {
-        return this.history.get(modelId) || [];
+    public getHistory(modelId: string, profilePrefix?: string): UsagePoint[] {
+        const storageKey = profilePrefix ? `${profilePrefix}:${modelId}` : modelId;
+        return this.history.get(storageKey) || [];
+    }
+
+    public getHistoryMap(snapshot: QuotaSnapshot, profilePrefix?: string): Map<string, UsagePoint[]> {
+        const result = new Map<string, UsagePoint[]>();
+        if (snapshot?.models) {
+            for (const model of snapshot.models) {
+                const history = this.getHistory(model.modelId, profilePrefix);
+                if (history.length > 0) {
+                    result.set(model.modelId, history);
+                }
+            }
+        }
+        return result;
     }
 
     public getEstimation(modelId: string): { speedPerHour: number, estimatedTimeRemainingMs: number | null } | null {

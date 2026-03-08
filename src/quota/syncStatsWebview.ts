@@ -3,7 +3,7 @@ import { LocalizationManager } from '../l10n/localizationManager';
 import { SyncManifest } from '../googleDrive';
 import { getFileIconSvg } from './fileIcons';
 import { QuotaSnapshot } from './types';
-import { formatResetTime, formatDuration, getCycleDuration, getModelAbbreviation } from './utils';
+import { formatResetTime, formatDuration, getCycleDuration, getModelAbbreviation, getModelStatusIcon } from './utils';
 import { SearchResult } from './antigravityClient';
 
 export { SearchResult };
@@ -736,6 +736,26 @@ export class SyncStatsWebview {
                     margin-bottom: 16px;
                 }
 
+                .profiles-scroll-container {
+                    max-height: 400px;
+                    overflow-y: auto;
+                    scrollbar-width: thin;
+                    scrollbar-color: rgba(255,255,255,0.2) transparent;
+                }
+                .profiles-scroll-container::-webkit-scrollbar {
+                    width: 6px;
+                }
+                .profiles-scroll-container::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                .profiles-scroll-container::-webkit-scrollbar-thumb {
+                    background: rgba(255,255,255,0.15);
+                    border-radius: 3px;
+                }
+                .profiles-scroll-container::-webkit-scrollbar-thumb:hover {
+                    background: rgba(255,255,255,0.3);
+                }
+
                 .sync-countdown {
                     position: relative;
                     width: 44px;
@@ -1066,7 +1086,7 @@ export class SyncStatsWebview {
                                         <td colspan="5">
                                             <span class="collapse-icon" id="icon-${groupId}">▼</span>
                                             ${name} ${isCurrentGroup ? `<span class="badge accent" style="margin-left:10px">${lm.t('This Machine')}</span>` : ''}
-                                            <span style="float:right; opacity:0.5; font-weight:400; font-size:11px">${group.length} ${lm.t('sessions')}</span>
+                                            <span style="float:right; opacity:0.5; font-weight:400; font-size:11px">${group.filter((m: any) => !m.isVirtualProfile).length} ${lm.t('sessions')}</span>
                                         </td>
                                     </tr>
                                     ${(() => {
@@ -1086,7 +1106,12 @@ export class SyncStatsWebview {
                                 return new Date(b.lastSync).getTime() - new Date(a.lastSync).getTime();
                             });
 
-                            return machinesWithQuota.map(m => {
+                            // Separate main account and other profiles
+                            const mainMachine = machinesWithQuota.find(m => m.isCurrent && !m.isVirtualProfile);
+                            const otherMachines = machinesWithQuota.filter(m => !(m.isCurrent && !m.isVirtualProfile));
+
+                            // Helper to render a single quota block
+                            const renderQuotaBlock = (m: any, isMainAccount: boolean, hasOtherProfiles: boolean = false) => {
                                 const snapshot = m.accountQuota;
                                 const models = [...snapshot.models].sort((a: any, b: any) => (a.remainingPercentage || 0) - (b.remainingPercentage || 0));
 
@@ -1102,23 +1127,84 @@ export class SyncStatsWebview {
                                     }
                                 }
 
-                                const mainAccount = m.isCurrent && !m.isVirtualProfile;
                                 const contentId = `quota-content-${m.id.replace(/[^a-zA-Z0-9]/g, '-')}`;
-                                const displayStyle = mainAccount ? 'grid' : 'none';
-                                const chevron = mainAccount ? '▼' : '▶';
+                                const displayStyle = isMainAccount ? 'grid' : 'none';
+                                const chevron = isMainAccount ? '▼' : '▶';
+
+                                // Mini quota summary (status-bar style)
+                                // Mini quota summary — grouped (models in same group share quota)
+                                const miniGroupDefs = [
+                                    { name: 'Claude/GPT', match: (l: string) => l.includes('Claude') || l.includes('GPT-OSS') },
+                                    { name: 'Gemini 3.1 Pro', match: (l: string) => l.includes('Gemini 3.1 Pro') },
+                                    { name: 'Gemini 3 Pro', match: (l: string) => l.includes('Gemini 3 Pro') && !l.includes('3.1') },
+                                    { name: 'Gemini 3.1 Flash', match: (l: string) => l.includes('Gemini 3.1 Flash') },
+                                    { name: 'Gemini 3 Flash', match: (l: string) => l.includes('Gemini 3 Flash') && !l.includes('3.1') },
+                                    { name: 'Gemini 2.5 Flash', match: (l: string) => l.includes('Gemini 2.5 Flash') && !l.includes('Lite') },
+                                    { name: 'Gemini 2.5 FL', match: (l: string) => l.includes('Gemini 2.5 Flash Lite') },
+                                ];
+                                const miniProcessed = new Set<string>();
+                                const miniParts: string[] = [];
+                                for (const def of miniGroupDefs) {
+                                    const groupModels = models.filter((mdl: any) => !miniProcessed.has(mdl.modelId) && def.match(mdl.label));
+                                    if (groupModels.length === 0) continue;
+                                    groupModels.forEach((mdl: any) => miniProcessed.add(mdl.modelId));
+                                    const minPct = Math.min(...groupModels.map((mdl: any) => mdl.remainingPercentage ?? 0));
+                                    const anyExhausted = groupModels.some((mdl: any) => mdl.isExhausted);
+                                    const icon = getModelStatusIcon(minPct, anyExhausted);
+                                    let resetSuffix = '';
+                                    if (minPct === 0) {
+                                        const nearestReset = groupModels
+                                            .filter((mdl: any) => mdl.resetTime)
+                                            .map((mdl: any) => new Date(mdl.resetTime))
+                                            .sort((a: Date, b: Date) => a.getTime() - b.getTime())[0];
+                                        if (nearestReset) {
+                                            resetSuffix = ` (${formatResetTime(nearestReset)})`;
+                                        }
+                                    }
+                                    miniParts.push(`<span style="white-space:nowrap;">${icon} ${def.name}: ${minPct.toFixed(0)}%${resetSuffix}</span>`);
+                                }
+                                // Add remaining ungrouped models
+                                for (const mdl of models) {
+                                    if (miniProcessed.has(mdl.modelId)) continue;
+                                    miniProcessed.add(mdl.modelId);
+                                    const pctVal = mdl.remainingPercentage ?? 0;
+                                    const icon = getModelStatusIcon(mdl.remainingPercentage, mdl.isExhausted);
+                                    const abbrev = getModelAbbreviation(mdl.label);
+                                    let resetSuffix = '';
+                                    if (pctVal === 0 && mdl.resetTime) {
+                                        const resetDate = new Date(mdl.resetTime);
+                                        resetSuffix = ` (${formatResetTime(resetDate)})`;
+                                    }
+                                    miniParts.push(`<span style="white-space:nowrap;">${icon} ${abbrev}: ${pctVal.toFixed(0)}%${resetSuffix}</span>`);
+                                }
+                                const miniQuotaHtml = miniParts.length > 0 ? `<div style="display:flex; flex-wrap:wrap; gap: 6px 12px; font-size:10px; opacity:0.7; margin-top:4px;">${miniParts.join('')}</div>` : '';
+
+                                // Profile switch button
+                                let profileActionHtml = '';
+                                if (m.isVirtualProfile && m.profileName) {
+                                    profileActionHtml = `<button onclick="event.stopPropagation(); vscode.postMessage({command: 'switchProfile', profile: '${m.profileName.replace(/'/g, "\\'")}'})" style="background:rgba(var(--accent-rgb),0.15); border:1px solid rgba(var(--accent-rgb),0.3); color:var(--accent); border-radius:4px; padding:2px 8px; font-size:10px; cursor:pointer; display:flex; align-items:center; gap:4px; white-space:nowrap;" title="${lm.t('Switch to profile {0}', m.profileName)}">🔄 ${lm.t('Switch')}</button>`;
+                                } else if (!isMainAccount) {
+                                    profileActionHtml = `<span style="font-size:12px; cursor:help; opacity:0.5;" title="${lm.t('This device is not linked to a profile. Use the Switch Profile command to create or link profiles.')}">ℹ️</span>`;
+                                }
+
+                                const headerBorderStyle = (isMainAccount && hasOtherProfiles) ? 'border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px;' : '';
 
                                 return `
-                                    <tr class="quota-row ${groupId}" style="background: rgba(0,0,0,0.2);">
-                                        <td colspan="5" style="padding: 20px 24px;">
-                                            <div onclick="const content = document.getElementById('${contentId}'); const icon = this.querySelector('.quota-chevron'); if (content.style.display === 'none') { content.style.display = 'grid'; icon.textContent = '▼'; } else { content.style.display = 'none'; icon.textContent = '▶'; }" style="display:flex; justify-content: space-between; align-items:flex-end; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; cursor: pointer;">
-                                                 <div style="font-size: 11px; font-weight: 700; opacity: 0.7; text-transform:uppercase; letter-spacing:1px; display: flex; align-items: center;">
-                                                    <span class="quota-chevron" style="margin-right: 8px; display: inline-block; width: 12px;">${chevron}</span>
-                                                    ${quotaSourceLabel}
+                                            <div onclick="const content = document.getElementById('${contentId}'); const icon = this.querySelector('.quota-chevron'); if (content.style.display === 'none') { content.style.display = 'grid'; icon.textContent = '▼'; } else { content.style.display = 'none'; icon.textContent = '▶'; }" style="display:flex; justify-content: space-between; align-items:flex-start; margin-bottom: 20px; ${headerBorderStyle} cursor: pointer;">
+                                                 <div style="flex:1; min-width:0;">
+                                                    <div style="font-size: 11px; font-weight: 700; opacity: 0.7; text-transform:uppercase; letter-spacing:1px; display: flex; align-items: center;">
+                                                        <span class="quota-chevron" style="margin-right: 8px; display: inline-block; width: 12px;">${chevron}</span>
+                                                        ${quotaSourceLabel}
+                                                    </div>
+                                                    ${miniQuotaHtml}
                                                  </div>
-                                                 ${snapshot.userEmail || snapshot.planName ? `<div style="font-size: 11px; opacity: 0.6;">${snapshot.userEmail ? `${lm.t('User')}: ${snapshot.userEmail}` : ''}${snapshot.userEmail && snapshot.planName ? ' • ' : ''}${snapshot.planName ? `${lm.t('Plan')}: ${snapshot.planName}` : ''}</div>` : ''}
+                                                 <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+                                                    ${snapshot.userEmail || snapshot.planName ? `<div style="font-size: 11px; opacity: 0.6;">${snapshot.userEmail ? `${lm.t('User')}: ${snapshot.userEmail}` : ''}${snapshot.userEmail && snapshot.planName ? ' • ' : ''}${snapshot.planName ? `${lm.t('Plan')}: ${snapshot.planName}` : ''}</div>` : ''}
+                                                    ${profileActionHtml}
+                                                 </div>
                                             </div>
                                             
-                                            <div id="${contentId}" class="${mainAccount ? '' : 'profiles-scroll-container'}" style="display: ${displayStyle}; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; width: 100%;">
+                                            <div id="${contentId}" style="display: ${displayStyle}; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; width: 100%;">
                                                 ${(() => {
                                         const pinned = vscode.workspace.getConfiguration('antigravity-storage-manager').get<string[]>('quota.pinnedModels') || [];
 
@@ -1206,11 +1292,11 @@ export class SyncStatsWebview {
 
                                             // History Chart
                                             let chartHtml = '';
-                                            if (isCurrentGroup && data.usageHistory) {
-                                                const history = data.usageHistory.get(primary.modelId);
+                                            if (m.usageHistory) {
+                                                const history = m.usageHistory.get(primary.modelId);
                                                 if (history && history.length > 0) {
                                                     const dailyMap = new Map<string, number>();
-                                                    history.forEach(p => {
+                                                    history.forEach((p: any) => {
                                                         const d = new Date(p.timestamp).toLocaleDateString();
                                                         const cur = dailyMap.get(d) || 0;
                                                         dailyMap.set(d, Math.max(cur, p.usage));
@@ -1228,14 +1314,15 @@ export class SyncStatsWebview {
 
                                                     if (daysToShow.length > 0) {
                                                         const bars = daysToShow.map((d) => {
-                                                            const h = Math.max(10, (d.usage / 100) * 100);
-                                                            let barColor = 'rgba(255,255,255,0.1)';
+                                                            // For 0 usage, show minimal 2px bar; for > 0 use proportional height
+                                                            const h = d.usage > 0 ? Math.max(8, (d.usage / 100) * 100) : 2;
+                                                            let barColor = 'rgba(255,255,255,0.08)';
                                                             if (d.usage > 80) barColor = 'var(--error)';
                                                             else if (d.usage > 50) barColor = 'var(--warning)';
                                                             else if (d.usage > 0) barColor = 'rgba(var(--accent-rgb), 0.6)';
 
                                                             const isToday = new Date().toDateString() === new Date(d.date).toDateString();
-                                                            if (isToday) barColor = 'var(--fg)';
+                                                            if (isToday && d.usage > 0) barColor = 'var(--fg)';
 
                                                             const dateStr = new Date(d.date).toLocaleDateString(lm.getLocale(), { day: 'numeric', month: 'long', year: 'numeric' });
                                                             const resetStr = primary.resetTime ? formatResetTime(new Date(primary.resetTime)) : '';
@@ -1309,36 +1396,115 @@ export class SyncStatsWebview {
                                         }).join('');
                                     })()}
                                     </div>
-                                </td>
-                            </tr>
                                 `;
-                            }).join('');
+                            };
+
+                            // Render main account as separate <tr>
+                            let mainHtml = '';
+                            if (mainMachine) {
+                                mainHtml = `
+                                    <tr class="quota-row ${groupId}" style="background: rgba(0,0,0,0.2);">
+                                        <td colspan="5" style="padding: 20px 24px;">
+                                            ${renderQuotaBlock(mainMachine, true, otherMachines.length > 0)}
+                                        </td>
+                                    </tr>`;
+                            }
+
+                            // Render other profiles in a single <tr> with scrollable container
+                            let othersHtml = '';
+                            if (otherMachines.length > 0) {
+                                const scrollContainerId = `profiles-scroll-${gIdx}`;
+                                othersHtml = `
+                                    <tr class="quota-row ${groupId}" style="background: rgba(0,0,0,0.15);">
+                                        <td colspan="5" style="padding: 8px 24px;">
+                                            <div class="profiles-scroll-container" id="${scrollContainerId}">
+                                                ${otherMachines.map((m, idx) => `
+                                                    <div style="padding: 12px 0; ${idx > 0 ? 'border-top: 1px solid rgba(255,255,255,0.04);' : ''}">
+                                                        ${renderQuotaBlock(m, false)}
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        </td>
+                                    </tr>`;
+                            }
+
+                            return mainHtml + othersHtml;
                         })()}
-                                    ${group.map(m => {
-                            const isOnline = (now - new Date(m.lastSync).getTime()) < 600000;
-                            return `
-                                            <tr class="session-row ${groupId}" style="${m.isCurrent ? 'background: rgba(255,255,255,0.05)' : ''}">
+                                    ${(() => {
+                            // Filter out virtual profiles - they are shown in quota section
+                            const realSessions = group.filter((m: any) => !m.isVirtualProfile);
+                            if (realSessions.length === 0) return '';
+
+                            // Group sessions by machine ID
+                            const sessionGroups = new Map<string, any[]>();
+                            for (const m of realSessions) {
+                                const key = m.id;
+                                if (!sessionGroups.has(key)) {
+                                    sessionGroups.set(key, []);
+                                }
+                                sessionGroups.get(key)!.push(m);
+                            }
+
+                            return Array.from(sessionGroups.entries()).map(([sessionId, sessions]) => {
+                                // Sort sessions by lastSync descending (newest first)
+                                sessions.sort((a, b) => new Date(b.lastSync).getTime() - new Date(a.lastSync).getTime());
+                                const primary = sessions[0];
+                                const isOnline = (now - new Date(primary.lastSync).getTime()) < 600000;
+
+                                // Aggregate stats
+                                const totalSyncCount = sessions.reduce((sum, s) => sum + (s.syncCount || 0), 0);
+                                const totalUpload = sessions.reduce((sum, s) => sum + (s.uploadCount || 0), 0);
+                                const totalDownload = sessions.reduce((sum, s) => sum + (s.downloadCount || 0), 0);
+
+                                const hasMultiple = sessions.length > 1;
+                                const historyId = `session-history-${sessionId.replace(/[^a-zA-Z0-9]/g, '-')}`;
+
+                                // Main row
+                                let html = `
+                                            <tr class="session-row ${groupId}" style="${primary.isCurrent ? 'background: rgba(255,255,255,0.05)' : ''}">
                                                 <td style="padding-left: 32px">
                                                     <span class="status-dot ${isOnline ? 'pulse' : ''}" style="color: ${isOnline ? 'var(--success)' : 'var(--error)'}; background: currentColor"></span>
-                                                    <span title="${m.id}" style="font-family: monospace; cursor: help;">${m.id.substring(0, 8)}...</span>
-                                                    ${m.isCurrent ? `<b>(${lm.t('Active Now')})</b>` : ''}
+                                                    <span title="${primary.id}" style="font-family: monospace; cursor: help;">${primary.id.substring(0, 8)}...</span>
+                                                    ${primary.isCurrent ? `<b>(${lm.t('Active Now')})</b>` : ''}
+                                                    ${hasMultiple ? `<span style="opacity:0.5; font-size:10px; margin-left:4px; cursor:pointer;" onclick="const el=document.getElementById('${historyId}'); el.style.display = el.style.display === 'none' ? 'table-row' : 'none'; this.textContent = el.style.display === 'none' ? '▶ ${sessions.length}' : '▼ ${sessions.length}';">▶ ${sessions.length}</span>` : ''}
                                                 </td>
-                                                <td>${m.syncCount}</td>
+                                                <td>${totalSyncCount}</td>
                                                 <td>
-                                                    <span title="${lm.t('Uploads')}">⬆️ ${m.uploadCount || 0}</span>
-                                                    <span title="${lm.t('Downloads')}" style="margin-left:8px">⬇️ ${m.downloadCount || 0}</span>
+                                                    <span title="${lm.t('Uploads')}">⬆️ ${totalUpload}</span>
+                                                    <span title="${lm.t('Downloads')}" style="margin-left:8px">⬇️ ${totalDownload}</span>
                                                 </td>
-                                                <td>${lm.formatDateTime(m.lastSync)}</td>
+                                                <td>${lm.formatDateTime(primary.lastSync)}</td>
                                                 <td style="text-align:right">
-                                                    ${!m.isCurrent ? `
-                                                        <button class="btn-icon danger" onclick="postCommand('deleteMachine', {id:'${m.fileId}', machineId:'${m.id}', name:'${m.name}'})" title="${lm.t('Remove machine')}">🗑️</button>
-                                                        <button class="btn-icon" onclick="postCommand('deleteMachineConversations', {id:'${m.id}', name:'${m.name}'})" title="${lm.t('Clear Files')}">🧹</button>
-                                                        <button class="btn-icon" onclick="postCommand('forceRemoteSync', {id:'${m.id}', name:'${m.name}'})" title="${lm.t('Ping Device')}">🔄</button>
+                                                    ${!primary.isCurrent ? `
+                                                        <button class="btn-icon danger" onclick="postCommand('deleteMachine', {id:'${primary.fileId}', machineId:'${primary.id}', name:'${primary.name}'})" title="${lm.t('Remove machine')}">🗑️</button>
+                                                        <button class="btn-icon" onclick="postCommand('deleteMachineConversations', {id:'${primary.id}', name:'${primary.name}'})" title="${lm.t('Clear Files')}">🧹</button>
+                                                        <button class="btn-icon" onclick="postCommand('forceRemoteSync', {id:'${primary.id}', name:'${primary.name}'})" title="${lm.t('Ping Device')}">🔄</button>
                                                     ` : '-'}
                                                 </td>
-                                            </tr>
-                                        `;
-                        }).join('')
+                                            </tr>`;
+
+                                // History sub-rows (hidden by default)
+                                if (hasMultiple) {
+                                    html += `<tr id="${historyId}" style="display:none;">
+                                        <td colspan="5" style="padding: 0 24px 8px 48px;">
+                                            <div style="font-size:10px; opacity:0.5; text-transform:uppercase; margin-bottom:4px; letter-spacing:0.5px;">${lm.t('Connection History')} (${sessions.length})</div>
+                                            <div style="max-height:200px; overflow-y:auto; scrollbar-width:thin;">
+                                                ${sessions.map((s, i) => {
+                                        const sOnline = (now - new Date(s.lastSync).getTime()) < 600000;
+                                        return `<div style="display:flex; gap:12px; align-items:center; padding:3px 0; font-size:11px; opacity:${i === 0 ? '1' : '0.6'}; ${i > 0 ? 'border-top: 1px solid rgba(255,255,255,0.03);' : ''}">
+                                                        <span class="status-dot ${sOnline ? 'pulse' : ''}" style="color: ${sOnline ? 'var(--success)' : 'var(--error)'}; background: currentColor; width:6px; height:6px;"></span>
+                                                        <span style="min-width:100px;">${lm.formatDateTime(s.lastSync)}</span>
+                                                        <span style="opacity:0.5;">syncs: ${s.syncCount || 0} · ⬆️${s.uploadCount || 0} · ⬇️${s.downloadCount || 0}</span>
+                                                    </div>`;
+                                    }).join('')}
+                                            </div>
+                                        </td>
+                                    </tr>`;
+                                }
+
+                                return html;
+                            }).join('');
+                        })()
                         }
                                 `;
                 }).join('')}
@@ -1679,9 +1845,14 @@ export class SyncStatsWebview {
                         }
                     }
                 }
-                
-                // Tooltip logic
-                const tooltip = document.getElementById('tooltip');
+                // Tooltip logic - create tooltip element
+                let tooltip = document.getElementById('tooltip');
+                if (!tooltip) {
+                    tooltip = document.createElement('div');
+                    tooltip.id = 'tooltip';
+                    tooltip.style.cssText = 'display:none; position:fixed; z-index:10000; background:rgba(30,30,30,0.95); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:10px 14px; font-size:12px; color:#eee; pointer-events:none; box-shadow:0 4px 12px rgba(0,0,0,0.4); max-width:250px;';
+                    document.body.appendChild(tooltip);
+                }
                 
                 function showTooltip(event, date, usage, reset, req, tok) {
                     if (!tooltip) return;
@@ -1698,7 +1869,7 @@ export class SyncStatsWebview {
                     // Reset
                     if (reset) {
                         content += '<div style="font-size:11px; display:flex; justify-content:space-between; gap:12px; margin-bottom:2px;">' +
-                                   '<span style="opacity:0.7">' + lm.t('Reset at {0}', reset) + '</span>' +
+                                   '<span style="opacity:0.7">${lm.t('Reset')}: ' + reset + '</span>' +
                                    '</div>';
                     }
                     
